@@ -8,7 +8,15 @@ import unittest
 import json
 from functools import reduce
 import sys
-from osdu import client
+from osdu.client import AwsOsduClient
+
+
+class TestOsduClient(unittest.TestCase):
+
+    def test_get_access_token(self):
+        osdu = AwsOsduClient()
+        token = osdu.token
+        self.assertIsNotNone(token)
 
 
 class TestOsduServiceBase(unittest.TestCase):
@@ -16,7 +24,7 @@ class TestOsduServiceBase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         # Authenticate once for the test fixture.
-        cls.osdu = client.get_client()
+        cls.osdu = AwsOsduClient()
 
     def setUp(self):
         # Reuse the existing fixture-wide token for each test case.
@@ -91,16 +99,19 @@ class TestSearchService(TestOsduServiceBase):
 
 
     def test_query_find_matching_wells_by_id(self):
-        #Boolean search with OR
+        # Boolean search with OR
+        well_ids = [ 'srn:master-data/Well:8690:', 'srn:master-data/Well:1000:' ]
         query = {
             "kind": "opendes:osdu:*:0.2.0",
-            "query": "data.ResourceID:(\"srn:master-data/Well:8690:\" OR \"srn:master-data/Well:1000:\")"
+            "query": f"data.ResourceID:(\"{well_ids[0]}\" OR \"{well_ids[1]}\")"
         }
-        expected_count = 2
+        expected_count = len(well_ids)
 
         result = self.osdu.search.query_with_cursor(query)
 
         self.assertEqual(expected_count, len(result))
+        self.assertIn(result[0]['data']['ResourceID'], well_ids)
+        self.assertIn(result[1]['data']['ResourceID'], well_ids)
 
 
     def test_find_well_in_country(self):
