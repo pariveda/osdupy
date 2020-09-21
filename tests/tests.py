@@ -31,24 +31,25 @@ class TestOsduServiceBase(unittest.TestCase):
         self.osdu = type(self).osdu
     
 
-class TestSearchService(TestOsduServiceBase):
+class TestSearchService_Query(TestOsduServiceBase):
 
     def test_simple_search_for_10_items(self): 
         query = {
-            "kind": f"opendes:osdu:*:*"
+            "kind": f"opendes:osdu:*:*",
+            "limit": 10
         }
-        result = self.osdu.search.query_with_cursor(query, max_results=10)
+        result = self.osdu.search.query(query)['results']
 
         self.assertEqual(10, len(result))
+
 
     def test_get_all_wells(self):
         query_get_all_wells = {
             "kind": "opendes:osdu:*:0.2.0",
-            "query": "data.ResourceTypeID:\"srn:type:master-data/Well:\"",
-            "limit": 10
+            "query": "data.ResourceTypeID:\"srn:type:master-data/Well:\""
         }
 
-        result = self.osdu.search.query_with_cursor(query_get_all_wells)
+        result = self.osdu.search.query(query_get_all_wells)['results']
 
         # All results should be wells.
         wells = filter(lambda x : x['type'] == 'well-master', result)
@@ -60,11 +61,10 @@ class TestSearchService(TestOsduServiceBase):
         #Get Wellbores
         query = {
             "kind": "opendes:osdu:*:0.2.0",
-            "query": "data.ResourceTypeID:\"srn:type:master-data/Wellbore:\"",
-            "limit": 10
+            "query": "data.ResourceTypeID:\"srn:type:master-data/Wellbore:\""
         }
 
-        result = self.osdu.search.query_with_cursor(query)
+        result = self.osdu.search.query(query)['results']
 
         # All results should be well bores.
         wellbores = filter(lambda x : x['type'] == 'wellbore-master', result)
@@ -80,9 +80,9 @@ class TestSearchService(TestOsduServiceBase):
         }
         expected_count = 37
 
-        result = self.osdu.search.query_with_cursor(query)
+        result = self.osdu.search.query(query)
 
-        self.assertEqual(expected_count, len(result))
+        self.assertEqual(expected_count, result['totalCount'])
 
 
     def test_find_well_by_id(self):
@@ -93,7 +93,7 @@ class TestSearchService(TestOsduServiceBase):
         }
         expected_count = 2
 
-        result = self.osdu.search.query_with_cursor(query)
+        result = self.osdu.search.query(query)['results']
 
         self.assertEqual(expected_count, len(result))
 
@@ -107,7 +107,7 @@ class TestSearchService(TestOsduServiceBase):
         }
         expected_count = len(well_ids)
 
-        result = self.osdu.search.query_with_cursor(query)
+        result = self.osdu.search.query(query)['results']
 
         self.assertEqual(expected_count, len(result))
         self.assertIn(result[0]['data']['ResourceID'], well_ids)
@@ -124,7 +124,7 @@ class TestSearchService(TestOsduServiceBase):
         }
         expected_count = 2
 
-        result = self.osdu.search.query_with_cursor(query)
+        result = self.osdu.search.query(query)['results']
 
         self.assertEqual(expected_count, len(result))
 
@@ -135,11 +135,11 @@ class TestSearchService(TestOsduServiceBase):
             "kind": "opendes:osdu:*:0.2.0",
             "query": "(data.ResourceTypeID: \"srn:type:work-product-component/WellLog:\") AND (data.Data.IndividualTypeProperties.Curves.Mnemonic: GR)"
         }
-        expected_count = 100
+        expected_count = 928
 
-        result = self.osdu.search.query_with_cursor(query)
+        result = self.osdu.search.query(query)
 
-        self.assertEqual(expected_count, len(result))
+        self.assertEqual(expected_count, result['totalCount'])
 
 
     def test_find_markers_trajectories_for_wellbore(self):
@@ -150,7 +150,7 @@ class TestSearchService(TestOsduServiceBase):
         }
         expected_count = 2
 
-        result = self.osdu.search.query_with_cursor(query)
+        result = self.osdu.search.query(query)['results']
 
         self.assertEqual(expected_count, len(result))
 
@@ -163,7 +163,7 @@ class TestSearchService(TestOsduServiceBase):
             "returnedFields": ["data.Data.IndividualTypeProperties.CountryID"]
         }
 
-        result = self.osdu.search.query_with_cursor(query)
+        result = self.osdu.search.query(query)['results']
         
         returned_fields = lambda d : list(d.keys())
         # self.assertListEqual(['data'], returned_fields(result[0]))
@@ -175,14 +175,33 @@ class TestSearchService(TestOsduServiceBase):
         query = {
             "kind": "opendes:osdu:*:0.2.0",
             "query": "data.Data.IndividualTypeProperties.WellID:\"srn:master-data/Well:3687:\"",
-            "returnedFields": [""],
-            "limit": 1
+            "returnedFields": [""]
         }
         expected_count = 3
 
-        result = self.osdu.search.query_with_cursor(query)
+        count = self.osdu.search.query(query)['totalCount']
 
-        self.assertEqual(expected_count, len(result))
+        self.assertEqual(expected_count, count)
+
+
+class TestSearchService_QueryWithPaging(TestOsduServiceBase):
+
+    def test_basic_paging(self):
+        page_size = 100
+        max_pages = 10
+        query = {
+            "kind": f"opendes:osdu:*:*",
+            "limit": page_size
+        }
+        result = self.osdu.search.query_with_paging(query)
+
+        # Iterate over first 'max_pages' pages and check that each page contains 'page_size' results.
+        page_count = 1
+        for page in result:
+            self.assertEqual(page_size, len(page), f'Failed on page #{page_count}')
+            page_count += 1
+            if page_count >= max_pages:
+                break
 
 
 
@@ -200,7 +219,7 @@ class TestStorageService(TestOsduServiceBase):
             "limit": 1,
             "returnedFields": ["id"]
         }
-        record_id = self.osdu.search.query_with_cursor(record_id_query, max_results=1)[0]['id']
+        record_id = self.osdu.search.query(record_id_query)['results'][0]['id']
 
         result = self.osdu.storage.get_record(record_id)
 
@@ -224,7 +243,6 @@ class TestStorageService(TestOsduServiceBase):
             del_results.append(isSuccess)
 
         self.assertEqual(1, result['recordCount'])
-        # self.assertEqual([], result['skippedRecords'])
         # Assert that all deletes succeeded.
         self.assertNotIn(False, del_results)
 
@@ -242,7 +260,7 @@ class TestDeliveryService(TestOsduServiceBase):
             "query": "(data.Data.IndividualTypeProperties.WellboreID: \"srn:master-data/Wellbore:*:\") AND (data.ResourceTypeID: (\"srn:type:work-product-component/WellboreTrajectory:\" OR \"srn:type:work-product-component/WellboreMarker:\"))",
             "returnedFields": ["data.Data.GroupTypeProperties.Files"]
         }
-        srns_results = self.osdu.search.query_with_cursor(srns_query, max_results=3)
+        srns_results = self.osdu.search.query(srns_query)['results']
         srns = reduce(
             (lambda a, b : a + b), 
             map(
