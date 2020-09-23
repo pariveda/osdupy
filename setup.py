@@ -1,11 +1,18 @@
+import os
 import setuptools
 
-with open("README.md", "r") as fh:
-    long_description = fh.read()
+# Get version.
+with open(os.path.join('VERSION')) as f:
+    version = f.read().strip()
+
+# Get long description.
+with open('README.md') as f:
+    long_description = f.read()
+
 
 setuptools.setup(
     name="osdupy",
-    version="0.0.1",
+    version=version,
     author="Pariveda Solutions, Inc.",
     author_email="mike.duffy@parivedasolutions.com",
     description="A simple python client for interacting with the OSDU API.",
