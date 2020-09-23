@@ -208,9 +208,10 @@ class TestSearchService_QueryWithPaging(TestOsduServiceBase):
 class TestStorageService(TestOsduServiceBase):
 
     def test_query_all_kinds(self):
-        result = self.osdu.storage.query_all_kinds()
+        expected_min = 100
+        result = self.osdu.storage.query_all_kinds()['results']
 
-        self.assertTrue(len(result) > 100)
+        self.assertGreater(len(result), expected_min)
 
 
     def test_get_record(self):
@@ -231,10 +232,8 @@ class TestStorageService(TestOsduServiceBase):
         with open(test_data_file, 'r') as _file:
             record = json.load(_file)
 
-        result = self.osdu.storage.store_record([record])
+        result = self.osdu.storage.store_records([record])
         record_ids = result['recordIds']
-        print('Records created: ')
-        print(result['recordIds'])
 
         # Clean up.
         del_results = []
