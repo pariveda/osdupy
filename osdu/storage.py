@@ -11,48 +11,36 @@ class StorageService(BaseService):
 
     def get_record(self, record_id: str, data_partition_id=BaseService.DEFAULT_DATA_PARTITION):
         url = f'{self._service_url}/records/{record_id}'
-       
-        return self.__execute_request(url, data_partition_id)
+        response = self.__execute_request('get', url, data_partition_id)
+
+        return response.json()
 
 
     def query_all_kinds(self, data_partition_id=BaseService.DEFAULT_DATA_PARTITION):
         url = f'{self._service_url}/query/kinds'
+        response = self.__execute_request('get', url, data_partition_id)
 
-        return self.__execute_request(url, data_partition_id)['results']
+        return response.json()
 
 
-    def store_record(self, record: list, data_partition_id=BaseService.DEFAULT_DATA_PARTITION):
+    def store_records(self, records: list, data_partition_id=BaseService.DEFAULT_DATA_PARTITION):
         url = f'{self._service_url}/records'
-        headers = self.__headers(data_partition_id)
-        response = requests.put(url=url, headers=headers, json=record)
-        if not response.ok:
-            raise Exception(f'HTTP {response.status_code}', response.reason, response.text)
+        response = self.__execute_request('put', url, data_partition_id, json=records)
 
         return response.json()
 
 
     def delete_record(self, record_id: str, data_partition_id=BaseService.DEFAULT_DATA_PARTITION) -> bool:
         url = f'{self._service_url}/records/{record_id}'
-        headers = self.__headers(data_partition_id)
-        response = requests.delete(url=url, headers=headers)
-        if not response.ok:
-            raise Exception(f'HTTP {response.status_code}', response.reason, response.text)
+        response = self.__execute_request('delete', url, data_partition_id)
 
         return response.status_code == 204
 
 
-    def __execute_request(self, url: str, data_partition_id: str):
-        headers = self.__headers(data_partition_id)
-        response = requests.get(url=url, headers=headers)
+    def __execute_request(self, method:str, url: str, data_partition_id: str, json=None):
+        headers = self._headers(data_partition_id)
+        response = requests.request(method, url, headers=headers, json=json)
         if not response.ok:
             raise Exception(f'HTTP {response.status_code}', response.reason, response.text)
 
-        return response.json()
-
-    
-    def __headers(self, data_partition_id):
-        return {
-            "Content-Type": "application/json",
-            "data-partition-id": data_partition_id,
-            "Authorization": self._client.token
-        }
+        return response
