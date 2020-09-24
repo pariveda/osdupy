@@ -9,7 +9,7 @@ class DeliveryService(BaseService):
     def __init__(self, client):
         super().__init__(client, service_name='delivery')
 
-    def get_signed_urls(self, srns: [str], data_partition=BaseService.DEFAULT_DATA_PARTITION):
+    def get_signed_urls(self, srns: [str]):
         url = f'{self._service_url}/GetFileSignedUrl'
         query = { 'srns': srns }
         response = requests.post(url=url, headers=self._headers(), json=query)

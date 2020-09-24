@@ -33,9 +33,17 @@ class BaseOsduClient:
     def delivery(self):
         return self._delivery
 
+    @property
+    def data_partition_id(self):
+        return self._data_partition_id
 
-    def __init__(self, api_url:str=None, client_id:str=None, user:str=None, password:str=None):
+    @data_partition_id.setter
+    def data_partition_id(self, val):
+        self._data_partition_id = val
 
+
+    def __init__(self, data_partition_id, api_url:str=None, client_id:str=None, user:str=None, password:str=None):
+        # Environment variables.
         # TODO: Validate api_url against URL regex pattern.        
         self._api_url = api_url or os.environ.get('OSDU_API_URL')
         self._client_id = client_id or os.environ.get('OSDU_CLIENT_ID')
@@ -43,6 +51,8 @@ class BaseOsduClient:
         p = password or os.environ.get('OSDU_PASSWORD')
         self._token = self.get_access_token(p)
         p = None # Don't leave password lying around.
+
+        self._data_partition_id = data_partition_id
 
         # Instantiate services.
         self._search = SearchService(self)
