@@ -14,7 +14,7 @@ from osdu.client import AwsOsduClient
 class TestOsduClient(unittest.TestCase):
 
     def test_get_access_token(self):
-        osdu = AwsOsduClient()
+        osdu = AwsOsduClient('opendes')
         token = osdu.token
         self.assertIsNotNone(token)
 
@@ -24,7 +24,7 @@ class TestOsduServiceBase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         # Authenticate once for the test fixture.
-        cls.osdu = AwsOsduClient()
+        cls.osdu = AwsOsduClient('opendes')
 
     def setUp(self):
         # Reuse the existing fixture-wide token for each test case.
