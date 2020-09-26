@@ -2,6 +2,7 @@
 """
 import requests
 from .base import BaseService
+import logging
 
 
 class SearchService(BaseService):
@@ -10,7 +11,19 @@ class SearchService(BaseService):
         super().__init__(client, 'search')
 
 
-    def query(self, query):
+    def query(self, query: dict) -> dict:
+        """
+
+        :param query:   dict representing the JSON-style query to be sent to the search API. Must adhere to
+                        the Lucene syntax suported by OSDU. For more details, see: 
+                        https://community.opengroup.org/osdu/documentation/-/wikis/Releases/R2.0/OSDU-Query-Syntax
+
+        :returns:       dict containing 3 items: aggregations, results, totalCount
+                        - aggregations: dict:   returned only if 'aggregateBy' specified in query
+                        - results:      list:   of records resutling from search query  
+                        - totalCount:   int:    the total number of results despite any 'limit' specified in the
+                                                query or the 1,000 record limit of the API
+        """
         url = f'{self._service_url}/query'
         response = requests.post(url=url, headers=self._headers(), json=query)
         if not response.ok:
@@ -23,41 +36,18 @@ class SearchService(BaseService):
         url = f'{self._service_url}/query_with_cursor'
         cursor='initial'
 
-        while cursor != None:
-            # Add cursor to request body for subsequent requests.
-            if cursor != "initial":
-                query["cursor"] = cursor
-            
-            response = requests.post(url=url, headers=self._headers(), json=query)
-            if not response.ok:
-                raise Exception(f'HTTP {response.status_code}', response.reason, response.text)
+        try:
+            while cursor:
+                # Add cursor to request body for subsequent requests.
+                if cursor != "initial":
+                    query["cursor"] = cursor
+                
+                response = requests.post(url=url, headers=self._headers(), json=query)
+                response.raise_for_status()
 
-            cursor, results, total_count  = response.json().values()
-            yield results
+                cursor, results, total_count  = response.json().values()
+                yield results, total_count
 
-    
-    def deep_query(self, query: dict, max_results=100, results=[], cursor='initial'):
-        """USE WITH CAUTION
-        Recursively retrieves all records resulting from `query`. Cursor is used to page through
-        results larger than the 1000 record limit per call.
-        Base case: cursor == None
-
-        :param query Dict representation of JSON query payload for REST API call.
-        """
-        url = f'{self._service_url}/query_with_cursor'
-
-        # Add cursor to request body for subsequent requests.
-        if cursor != "initial":
-            query["cursor"] = cursor
-        
-        response = requests.post(url=url, headers=self._headers(), json=query)
-        if not response.ok:
-            raise Exception(f'HTTP {response.status_code}', response.reason, response.text)
-
-        cursor, _results, total_count  = response.json().values()
-        results += _results
-
-        if cursor != None and len(results) < max_results:
-            results = self.query_with_cursor(query, results=results, cursor=cursor)
-        
-        return results[:max_results]
+        except requests.exceptions.HTTPError as e:
+            logging.error(e)
+            raise e
