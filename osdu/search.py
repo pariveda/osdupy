@@ -40,7 +40,7 @@ class SearchService(BaseService):
                         the Lucene syntax suported by OSDU. For more details, see: 
                         https://community.opengroup.org/osdu/documentation/-/wikis/Releases/R2.0/OSDU-Query-Syntax
 
-        :returns:       iterator containing  items: results, totalCount
+        :returns:       iterator of tuple containing 2 items: (results, totalCount)
                         - results:      list:   one page of records resutling from search query. Default page size
                                                 is 10. This can be modified by passing the 'limit' parameter in
                                                 query with the maximum allowed being 1000.
