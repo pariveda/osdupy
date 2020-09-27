@@ -58,7 +58,6 @@ class TestSearchService_Query(TestOsduServiceBase):
 
 
     def test_get_all_wellbores(self):
-        #Get Wellbores
         query = {
             "kind": "opendes:osdu:*:0.2.0",
             "query": "data.ResourceTypeID:\"srn:type:master-data/Wellbore:\""
@@ -204,6 +203,20 @@ class TestSearchService_QueryWithPaging(TestOsduServiceBase):
             if page_count >= max_pages:
                 break
 
+    def test_paging_gets_all_results(self):
+        page_size = 1000
+        query = {
+            'kind': 'opendes:osdu:well-master:*',
+            'limit': page_size
+        }
+        result = self.osdu.search.query_with_paging(query)
+
+        record_count = 0
+        total_count = 0
+        for page, total in result:
+            total_count = total
+            record_count += len(page)
+        self.assertEqual(total_count, record_count)
 
 class TestStorageService(TestOsduServiceBase):
 
