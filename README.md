@@ -43,7 +43,7 @@ osdu = AwsOsduClient(data_partition)
 If you have not set the above environment variales—or you have only set some—then you will need to pass any undefined as args when instantiating the client.
 
 ```python
-from getpass import getpass()
+from getpass import getpass
 from osdu.client import AwsOsduClient
 
 api_url = 'https://your.api.url.com'
@@ -52,7 +52,11 @@ user = 'username@testing.com'
 password = getpass()
 data_partition = 'yourpartition'
 
-osdu = AwsOsduClient(data_partition, api_url, client_id, user, password)
+osdu = AwsOsduClient(data_partition,  
+    api_url=api_url,  
+    client_id=client_id,  
+    user=user,  
+    password=password)
 ```
 
 ### Use the client
