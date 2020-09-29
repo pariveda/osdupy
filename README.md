@@ -10,6 +10,8 @@ A simple python client for the [OSDU](https://community.opengroup.org/osdu) data
 - storage
   - query_all_kinds
   - get_record
+  - get_all_record_versions
+  - get_record_version
   - store_records
   - delete_record
 - delivery
@@ -25,7 +27,7 @@ pip install osdupy
 
 ### Initialize the client
 
-The only required argument is `data_partition`. If your environment variables (below) have been set, then client.get_client() can be called with only `data_partition` as an argument.
+The only required argument is `data_partition`. If your environment variables (below) have been set, then client can be instantiated with only `data_partition` as an argument.
 Environment variables: 
 1. `OSDU_API_URL`
 1. `OSDU_CLIENT_ID`
@@ -46,7 +48,7 @@ If you have not set the above environment varialesâ€”or you have only set someâ€
 from getpass import getpass
 from osdu.client import AwsOsduClient
 
-api_url = 'https://your.api.url.com'
+api_url = 'https://your.api.url.com'  # Must be base URL only
 client_id = 'YOURCLIENTID'
 user = 'username@testing.com'
 password = getpass()
@@ -109,4 +111,3 @@ with open(new_or_updated_record, 'r') as _file:
 result = osdu.storage.store_records([record])
 
 ```
-

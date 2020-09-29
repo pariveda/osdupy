@@ -43,9 +43,13 @@ class BaseOsduClient:
 
 
     def __init__(self, data_partition_id, api_url:str=None, client_id:str=None, user:str=None, password:str=None):
+        """Authenticate and instantiate a new OSDU client.
+        
+        'api_url' must be only the base URL, e.g. https://myapi.myregion.mydomain.com
+        """
         # Environment variables.
         # TODO: Validate api_url against URL regex pattern.        
-        self._api_url = api_url or os.environ.get('OSDU_API_URL')
+        self._api_url = (api_url or os.environ.get('OSDU_API_URL')).rstrip('/')
         self._client_id = client_id or os.environ.get('OSDU_CLIENT_ID')
         self._user = user or os.environ.get('OSDU_USER')
         p = password or os.environ.get('OSDU_PASSWORD')

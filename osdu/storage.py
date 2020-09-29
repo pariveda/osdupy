@@ -64,7 +64,6 @@ class StorageService(BaseService):
     def __execute_request(self, method:str, url: str, json=None):
         headers = self._headers()
         response = requests.request(method, url, headers=headers, json=json)
-        if not response.ok:
-            raise Exception(f'HTTP {response.status_code}', response.reason, response.text)
+        response.raise_for_status()
 
         return response

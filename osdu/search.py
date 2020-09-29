@@ -26,8 +26,7 @@ class SearchService(BaseService):
         """
         url = f'{self._service_url}/query'
         response = requests.post(url=url, headers=self._headers(), json=query)
-        if not response.ok:
-            raise Exception(f'HTTP {response.status_code}', response.reason, response.text)
+        response.raise_for_status()
 
         return response.json()
 
@@ -50,21 +49,17 @@ class SearchService(BaseService):
         url = f'{self._service_url}/query_with_cursor'
         cursor=''
 
-        try:
-            while cursor:
-                # Add cursor to request body for subsequent requests.
-                if cursor != '':
-                    query['cursor'] = cursor
+        while cursor:
+            # Add cursor to request body for subsequent requests.
+            if cursor != '':
+                query['cursor'] = cursor
+            
+            response = requests.post(url=url, headers=self._headers(), json=query)
+            response.raise_for_status()
+
+            cursor, results, total_count  = response.json().values()
+            if not cursor:  # Effetive do-while condition
+                break
+            else:
+                yield results, total_count
                 
-                response = requests.post(url=url, headers=self._headers(), json=query)
-                response.raise_for_status()
-
-                cursor, results, total_count  = response.json().values()
-                if not cursor:  # Effetive do-while condition
-                    break
-                else:
-                    yield results, total_count
-
-        except requests.exceptions.HTTPError as e:
-            logging.error(e)
-            raise e
