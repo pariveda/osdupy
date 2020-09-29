@@ -9,6 +9,7 @@ import json
 from functools import reduce
 import sys
 from osdu.client import AwsOsduClient
+import requests
 
 
 class TestOsduClient(unittest.TestCase):
@@ -183,6 +184,15 @@ class TestSearchService_Query(TestOsduServiceBase):
         self.assertEqual(expected_count, count)
 
 
+    def test_malformed_query_raises_exception(self):
+        # Query with 3-part kind. Must be full 4-part kind.
+        query = {
+            "kind": "osdu:*:0.2.0"
+        }
+        with self.assertRaises(requests.HTTPError):
+            should_fail = self.osdu.search.query(query)
+
+
 class TestSearchService_QueryWithPaging(TestOsduServiceBase):
 
     def test_basic_paging(self):
@@ -238,6 +248,12 @@ class TestStorageService(TestOsduServiceBase):
         result = self.osdu.storage.get_record(record_id)
 
         self.assertEqual(record_id, result['id'])
+
+
+    def test_get_nonexistant_record_raises_excpetion(self):
+        fake_record_id = 'opendes:doc:7be4fc7918e348c2bbc4d6f25b2ff334' #'ABC123'
+        with self.assertRaises(requests.HTTPError):
+            should_fail = self.osdu.storage.get_record(fake_record_id)
 
 
     def test_get_all_record_versions(self):
