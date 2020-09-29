@@ -240,6 +240,33 @@ class TestStorageService(TestOsduServiceBase):
         self.assertEqual(record_id, result['id'])
 
 
+    def test_get_all_record_versions(self):
+        record_id_query = {
+            "kind": "*:*:well-master:*",
+            "limit": 1,
+            "returnedFields": ["id"]
+        }
+        record_id = self.osdu.search.query(record_id_query)['results'][0]['id']
+
+        result = self.osdu.storage.get_all_record_versions(record_id)
+
+        self.assertEqual(record_id, result['recordId'])
+        self.assertGreaterEqual(len(result['versions']), 1)
+
+
+    def test_get_record_version(self):
+        record_id_query = {
+            "kind": "*:*:well-master:*",
+            "limit": 1
+        }
+        expected_record = self.osdu.search.query(record_id_query)['results'][0]
+
+        result = self.osdu.storage.get_record_version(expected_record['id'], expected_record['version'])
+
+        self.assertEqual(expected_record['id'], result['id'])
+        self.assertEqual(expected_record['version'], result['version'])
+
+
     def test_create_delete_single_record(self):
         test_data_file = 'tests/test_data/test_create_single_record.json'
         with open(test_data_file, 'r') as _file:

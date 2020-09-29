@@ -83,7 +83,7 @@ query = {
     "kind": f"opendes:osdu:*:*",
     "limit": page_size
 }
-result = self.osdu.search.query_with_paging(query)
+result = osdu.search.query_with_paging(query)
 
 # Iterate over the pages to do something with the results.
 for page, total_count in result:
@@ -99,14 +99,14 @@ result = osdu.storage.get_record(record_id)
 # { 'id': 'opendes:doc:123456789', 'kind': ..., 'data': {...}, 'acl': {...}, .... }
 ```
 
-#### Upsert a record
+#### Upsert records
 
 ```python
 new_or_updated_record = './record-123.json'
 with open(new_or_updated_record, 'r') as _file:
     record = json.load(_file)
 
-result = self.osdu.storage.store_records([record])
+result = osdu.storage.store_records([record])
 
 ```
 
