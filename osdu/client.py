@@ -75,15 +75,11 @@ class BaseOsduClient:
 
 class AwsOsduClient(BaseOsduClient):
 
-        def __init__(self, api_url:str=None, client_id:str=None, user:str=None, password:str=None):
-            super().__init__(api_url, client_id, user, password)
-
-
-        def get_access_token(self, password):
-            client = boto3.client('cognito-idp')
-            response = client.initiate_auth(
-                AuthFlow='USER_PASSWORD_AUTH',
-                ClientId=self._client_id,
-                AuthParameters={ 'USERNAME': self._user, 'PASSWORD': password }
-            )
-            return "Bearer " + response['AuthenticationResult']['AccessToken']   
+    def get_access_token(self, password):
+        client = boto3.client('cognito-idp')
+        response = client.initiate_auth(
+            AuthFlow='USER_PASSWORD_AUTH',
+            ClientId=self._client_id,
+            AuthParameters={ 'USERNAME': self._user, 'PASSWORD': password }
+        )
+        return "Bearer " + response['AuthenticationResult']['AccessToken']   
