@@ -2,7 +2,6 @@
 """
 import requests
 from .base import BaseService
-import logging
 
 
 class SearchService(BaseService):
