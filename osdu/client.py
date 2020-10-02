@@ -1,7 +1,6 @@
 """ Handles the authentication and token management for interacting with the OSDU platform.
 """
 
-import logging
 import os
 
 import boto3
@@ -55,7 +54,6 @@ class BaseOsduClient:
         p = password or os.environ.get('OSDU_PASSWORD')
         self._token = self.get_access_token(p)
         p = None # Don't leave password lying around.
-
         self._data_partition_id = data_partition_id
 
         # Instantiate services.

@@ -26,10 +26,6 @@ class TestOsduServiceBase(unittest.TestCase):
     def setUpClass(cls):
         # Authenticate once for the test fixture.
         cls.osdu = AwsOsduClient('opendes')
-
-    def setUp(self):
-        # Reuse the existing fixture-wide token for each test case.
-        self.osdu = type(self).osdu
     
 
 class TestSearchService_Query(TestOsduServiceBase):
@@ -157,7 +153,7 @@ class TestSearchService_Query(TestOsduServiceBase):
 
     def test_returned_fields(self):
         query = {
-            "kind": "opendes:osdu:*:0.2.1",
+            "kind": "opendes:osdu:*:0.2.0",
             "query": "data.ResourceTypeID:\"srn:type:master-data/Well:\"",
             "limit": 10,
             "returnedFields": ["data.Data.IndividualTypeProperties.CountryID"]
@@ -283,23 +279,27 @@ class TestStorageService(TestOsduServiceBase):
         self.assertEqual(expected_record['version'], result['version'])
 
 
-    def test_create_delete_single_record(self):
+
+class TestStorageService_WithSideEffects(TestOsduServiceBase):
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.test_records = []
+
+    def test_001_create_records(self):
         test_data_file = 'tests/test_data/test_create_single_record.json'
         with open(test_data_file, 'r') as _file:
             record = json.load(_file)
 
         result = self.osdu.storage.store_records([record])
-        record_ids = result['recordIds']
+        self.test_records = result['recordIds']
 
-        # Clean up.
-        del_results = []
-        for rec_id in record_ids:
-            isSuccess = self.osdu.storage.delete_record(rec_id)
-            del_results.append(isSuccess)
-
-        self.assertEqual(1, result['recordCount'])
-        # Assert that all deletes succeeded.
-        self.assertNotIn(False, del_results)
+    @classmethod
+    def tearDownClass(cls):
+        super().setUpClass()
+        for record_id in cls.test_records:
+            cls.osdu.storage.delete_record(record_id)
 
 
 
