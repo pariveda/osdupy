@@ -3,16 +3,15 @@ can be set locally by setting the environment variable OSDU_PASSWORD. If using
 VS Code, then you can set this in your local `.env` file in your workspace directory to easily
 switch between OSDU environments.
 """
-
-import unittest
 import json
 from functools import reduce
-import sys
-from osdu.client import AwsOsduClient
+from unittest import TestCase
+
 import requests
+from osdu.client import AwsOsduClient
 
 
-class TestOsduClient(unittest.TestCase):
+class TestOsduClient(TestCase):
 
     def test_get_access_token(self):
         osdu = AwsOsduClient('opendes')
@@ -20,7 +19,7 @@ class TestOsduClient(unittest.TestCase):
         self.assertIsNotNone(token)
 
 
-class TestOsduServiceBase(unittest.TestCase):
+class TestOsduServiceBase(TestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -208,6 +207,9 @@ class TestSearchService_QueryWithPaging(TestOsduServiceBase):
             page_count += 1
             if page_count >= max_pages:
                 break
+        
+        self.assertGreater(page_count, 1)
+
 
     def test_paging_gets_all_results(self):
         page_size = 1000
@@ -222,6 +224,9 @@ class TestSearchService_QueryWithPaging(TestOsduServiceBase):
         for page, total in result:
             total_count = total
             record_count += len(page)
+        
+        self.assertGreater(record_count, 0)
+        self.assertGreater(total_count, 0)
         self.assertEqual(total_count, record_count)
 
 class TestStorageService(TestOsduServiceBase):
@@ -331,8 +336,3 @@ class TestDeliveryService(TestOsduServiceBase):
         # Assert
         self.assertEqual(expected_count['processed'], len(result['processed']))
         self.assertEqual(expected_count['unprocessed'], len(result['unprocessed']))
-
-
-
-if __name__ == '__main__':
-    unittest.main()
