@@ -1,12 +1,9 @@
-import unittest
-from unittest import mock
-import requests
-import boto3
+from unittest import TestCase, mock
 
 from osdu.client import AwsOsduClient
 
 
-class TestOsduClient(unittest.TestCase):
+class TestOsduClient(TestCase):
 
     @mock.patch('boto3.client')
     def test_initialize_aws_client_with_args(self, mock_client):
@@ -15,10 +12,10 @@ class TestOsduClient(unittest.TestCase):
         user = 'username@testing.com'
         password = 'p@ssw0rd'
 
-        osdu = AwsOsduClient('opendes',
+        client = AwsOsduClient('opendes',
             api_url=api_url,  
             client_id=client_id,  
             user=user,  
             password=password)
 
-        self.assertIsNotNone(osdu)
+        self.assertIsNotNone(client)
