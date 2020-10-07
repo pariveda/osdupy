@@ -46,18 +46,24 @@ class SearchService(BaseService):
                                                 query or the 1,000 record limit of the API
         """
         url = f'{self._service_url}/query_with_cursor'
-        cursor=''
+        # Initial cursor can be anything, but using a non-empty string value helps prevent accidents
+        # in the case of sloppy/implicit boolean tests on the cursor value.
+        cursor='initial'
 
-        while cursor:
+        # Note: This has to be a do-while (exit-controlled) loop, because the the API does not return
+        # a null cursor until *after* we've consumed the last page. This results in always
+        # returning an extra empty page at the end, which throws off the expected behavior of
+        # the returned generator.
+        while True: # Effective do-while loop
             # Add cursor to request body for subsequent requests.
-            if cursor != '':
+            if cursor != 'initial':
                 query['cursor'] = cursor
             
             response = requests.post(url=url, headers=self._headers(), json=query)
             response.raise_for_status()
 
             cursor, results, total_count  = response.json().values()
-            if not cursor:  # Effetive do-while condition
+            if cursor is None:  # Effective do-while exit condition
                 break
             else:
                 yield results, total_count
