@@ -8,15 +8,14 @@ from functools import reduce
 from unittest import TestCase
 
 import requests
-from osdu.client import AwsOsduClient
+from osdu.client import AwsOsduClient, SimpleOsduClient
 
 
-class TestOsduClient(TestCase):
+class TestAwsOsduClient(TestCase):
 
     def test_get_access_token(self):
-        osdu = AwsOsduClient('opendes')
-        token = osdu.token
-        self.assertIsNotNone(token)
+        client = AwsOsduClient('opendes')
+        self.assertIsNotNone(client.access_token)
 
 
 class TestOsduServiceBase(TestCase):

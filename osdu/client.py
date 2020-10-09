@@ -13,8 +13,8 @@ from osdu.storage import StorageService
 class BaseOsduClient:
 
     @property
-    def token(self):
-        return self._token
+    def access_token(self):
+        return self._access_token
 
     @property
     def api_url(self):
@@ -52,7 +52,7 @@ class BaseOsduClient:
         self._client_id = client_id or os.environ.get('OSDU_CLIENT_ID')
         self._user = user or os.environ.get('OSDU_USER')
         p = password or os.environ.get('OSDU_PASSWORD')
-        self._token = self.get_access_token(p)
+        self.get_tokens(p)
         p = None # Don't leave password lying around.
         self._data_partition_id = data_partition_id
 
@@ -67,17 +67,39 @@ class BaseOsduClient:
 
 
     # Abstract Method
-    def get_access_token(self, password):
+    def get_tokens(self, password):
         raise NotImplementedError('This method must be implemented by a subclass')
+
+
+
+class SimpleOsduClient(BaseOsduClient):
+    """BYOT: Bring your own token.
+    
+    This client assumes you are obtaining a token yourself (e.g. via your application's
+    login form or otheer mechanism. With this SimpleOsduClient, you simply provide that token.
+    With this simplicity, you are also then respnsible for reefreeshing the token as needed and
+    re-instantiating the client with the new token.
+    """
+    
+    def __init__(self, data_partition_id, access_token) -> None:
+        """
+        :param: token: The access token only (not including the 'Bearer ' prefix).
+        """
+        self._data_partition_id = data_partition_id
+        self._access_token = access_token
+
 
 
 class AwsOsduClient(BaseOsduClient):
 
-    def get_access_token(self, password):
+    def get_tokens(self, password) -> None:
         client = boto3.client('cognito-idp')
         response = client.initiate_auth(
             AuthFlow='USER_PASSWORD_AUTH',
             ClientId=self._client_id,
             AuthParameters={ 'USERNAME': self._user, 'PASSWORD': password }
         )
-        return "Bearer " + response['AuthenticationResult']['AccessToken']   
+
+        self._access_token = response['AuthenticationResult']['AccessToken']
+        self._refresh_token = response['AuthenticationResult']['RefreshToken']
+
