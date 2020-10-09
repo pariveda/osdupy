@@ -41,30 +41,22 @@ class BaseOsduClient:
         self._data_partition_id = val
 
 
-    def __init__(self, data_partition_id, api_url:str=None, client_id:str=None, user:str=None, password:str=None):
+    def __init__(self, data_partition_id, api_url:str=None):
         """Authenticate and instantiate a new OSDU client.
         
         'api_url' must be only the base URL, e.g. https://myapi.myregion.mydomain.com
         """
-        # Environment variables.
+        self._data_partition_id = data_partition_id
         # TODO: Validate api_url against URL regex pattern.        
         self._api_url = (api_url or os.environ.get('OSDU_API_URL')).rstrip('/')
-        self._client_id = client_id or os.environ.get('OSDU_CLIENT_ID')
-        self._user = user or os.environ.get('OSDU_USER')
-        p = password or os.environ.get('OSDU_PASSWORD')
-        self.get_tokens(p)
-        p = None # Don't leave password lying around.
-        self._data_partition_id = data_partition_id
 
         # Instantiate services.
         self._search = SearchService(self)
         self._storage = StorageService(self)
         self._delivery = DeliveryService(self)
-
         # TODO: Implement these services.
         # self.__legal = LegaService(self)
         # self.__entitlements = EntitlementsService(self)
-
 
     # Abstract Method
     def get_tokens(self, password):
@@ -81,16 +73,29 @@ class SimpleOsduClient(BaseOsduClient):
     re-instantiating the client with the new token.
     """
     
-    def __init__(self, data_partition_id, access_token) -> None:
+    def __init__(self, data_partition_id: str, access_token: str, api_url: str=None) -> None:
         """
-        :param: token: The access token only (not including the 'Bearer ' prefix).
+        :param: access_token:   The access token only (not including the 'Bearer ' prefix).
+        :param: api_url:        must be only the base URL, e.g. https://myapi.myregion.mydomain.com
         """
-        self._data_partition_id = data_partition_id
+        super().__init__(data_partition_id, api_url)
+
         self._access_token = access_token
 
 
-
 class AwsOsduClient(BaseOsduClient):
+
+    def __init__(self, data_partition_id, api_url:str=None, client_id:str=None, user:str=None, password:str=None) -> None:
+        super().__init__(data_partition_id, api_url)
+
+        self._client_id = client_id or os.environ.get('OSDU_CLIENT_ID')
+        self._user = user or os.environ.get('OSDU_USER')
+        if password:
+            self.get_tokens(password)
+            password = None # Don't leave password lying around.
+        else: 
+            self.get_tokens(os.environ.get('OSDU_PASSWORD'))
+
 
     def get_tokens(self, password) -> None:
         client = boto3.client('cognito-idp')
