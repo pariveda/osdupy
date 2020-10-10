@@ -5,18 +5,34 @@ switch between OSDU environments.
 """
 import json
 from functools import reduce
+import os
 from unittest import TestCase
 
 import requests
-from osdu.client import AwsOsduClient
+from osdu.client import AwsOsduClient, SimpleOsduClient
 
 
-class TestOsduClient(TestCase):
+class TestSimpleOsduClient(TestCase):
+
+    def test_endpoint_access(self):
+        # token = os.environ.get('OSDU_ACCESS_TOKEN')
+        token = AwsOsduClient('opendes').access_token
+        query = {
+            "kind": f"opendes:osdu:*:*",
+            "limit": 1
+        }
+        client = SimpleOsduClient('opendes', token)
+
+        result = client.search.query(query)['results']
+
+        self.assertEqual(1, len(result))
+
+
+class TestAwsOsduClient(TestCase):
 
     def test_get_access_token(self):
-        osdu = AwsOsduClient('opendes')
-        token = osdu.token
-        self.assertIsNotNone(token)
+        client = AwsOsduClient('opendes')
+        self.assertIsNotNone(client.access_token)
 
 
 class TestOsduServiceBase(TestCase):
