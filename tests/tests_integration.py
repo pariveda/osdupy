@@ -336,3 +336,12 @@ class TestDeliveryService(TestOsduServiceBase):
         # Assert
         self.assertEqual(expected_count['processed'], len(result['processed']))
         self.assertEqual(expected_count['unprocessed'], len(result['unprocessed']))
+
+
+class TestEntitlementsService(TestOsduServiceBase):
+
+    def test_get_groups_for_user(self):
+        result = self.osdu.entitlements.get_groups_for_user()
+
+        self.assertEqual(result, 1)
+        

@@ -8,6 +8,7 @@ import boto3
 from osdu.delivery import DeliveryService
 from osdu.search import SearchService
 from osdu.storage import StorageService
+from osdu.entitlements import EntitlementsService
 
 
 class BaseOsduClient:
@@ -27,6 +28,10 @@ class BaseOsduClient:
     @property
     def storage(self):
         return self._storage
+
+    @property
+    def entitlements(self):
+        return self.__entitlements
 
     @property
     def delivery(self):
@@ -60,10 +65,10 @@ class BaseOsduClient:
         self._search = SearchService(self)
         self._storage = StorageService(self)
         self._delivery = DeliveryService(self)
+        self.__entitlements = EntitlementsService(self)
 
         # TODO: Implement these services.
         # self.__legal = LegaService(self)
-        # self.__entitlements = EntitlementsService(self)
 
 
     # Abstract Method
