@@ -2,6 +2,8 @@
 
 A simple python client for the [OSDU](https://community.opengroup.org/osdu) data platform.
 
+## Contents
+
 - [Clients](#clients)
   * [SimpleOsduClient](#simpleosduclient)
   * [AwsOsduClient](#awsosduclient)
