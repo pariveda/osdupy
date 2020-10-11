@@ -2,6 +2,26 @@
 
 A simple python client for the [OSDU](https://community.opengroup.org/osdu) data platform.
 
+
+## Clients
+
+Choose the client that best meets your needs. The same methods are all supported for each.
+
+### SimpleOsduClient
+
+BYOT: Bring your own token. Great for backend service or business logic that supplements a
+front-end application.
+
+*This client assumes you are obtaining a token yourself (e.g. via your application's
+login form or otheer mechanism. With this SimpleOsduClient, you simply provide that token.
+With this simplicity, you are also then respnsible for reefreeshing the token as needed and
+re-instantiating the client with the new token.*
+
+### AwsOsduClient
+
+Good for batch tasks that don't have an interactive front-end. Token management is handled
+with the boto3 library directly through the Cognito service. You have to supply additional arguments for this.
+
 ## Currently supported methods
 
 - search
@@ -25,10 +45,30 @@ pip install osdupy
 
 ## Usage
 
-### Initialize the client
+### Instantiating the SimpleOsduClient
+
+If environment variable `OSDU_API_URL` is set, then it does not need to be passed as an argument. Otherwise it must be passed as  keyword argument.
+
+```python
+from osdu.client import AwsOsduClient
+
+data_partition = 'opendes'
+token = 'token-received-from-front-end-app'
+
+# With env var `OSDU_API_URL` set in current environment.
+osdu = AwsOsduClient(data_partition, token)
+
+# Without env var set.
+api_url = 'https://your.api.base_url.com'
+osdu = AwsOsduClient(data_partition, token, api_url=api_url)
+
+```
+
+### Instantiating the AwsOsduClient
 
 The only required argument is `data_partition`. If your environment variables (below) have been set, then client can be instantiated with only `data_partition` as an argument.
-Environment variables: 
+Environment variables:
+
 1. `OSDU_API_URL`
 1. `OSDU_CLIENT_ID`
 1. `OSDU_USER`
@@ -63,7 +103,7 @@ osdu = AwsOsduClient(data_partition,
 
 ### Use the client
 
-Below are just a few usage examples. See [tests](https://github.com/pariveda/osdupy/blob/master/tests/tests.py) for more copmrehensive usage examples.
+Below are just a few usage examples. See [integration tests](https://github.com/pariveda/osdupy/blob/master/tests/tests_integration.py) for more copmrehensive usage examples.
 
 #### Search for records by query
 
