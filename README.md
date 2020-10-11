@@ -2,6 +2,19 @@
 
 A simple python client for the [OSDU](https://community.opengroup.org/osdu) data platform.
 
+- [Clients](#clients)
+  * [SimpleOsduClient](#simpleosduclient)
+  * [AwsOsduClient](#awsosduclient)
+- [Currently supported methods](#currently-supported-methods)
+- [Installation](#installation)
+- [Usage](#usage)
+  * [Instantiating the SimpleOsduClient](#instantiating-the-simpleosduclient)
+  * [Instantiating the AwsOsduClient](#instantiating-the-awsosduclient)
+  * [Using the client](#using-the-client)
+    + [Search for records by query](#search-for-records-by-query)
+    + [Search with paging](#search-with-paging)
+    + [Get a record](#get-a-record)
+    + [Upsert records](#upsert-records)
 
 ## Clients
 
@@ -24,17 +37,17 @@ with the boto3 library directly through the Cognito service. You have to supply 
 
 ## Currently supported methods
 
-- search
+- [search](osdu/search.py)
   - query
   - query_with_paging
-- storage
+- [storage](osdu/storage.py)
   - query_all_kinds
   - get_record
   - get_all_record_versions
   - get_record_version
   - store_records
   - delete_record
-- delivery
+- [delivery](osdu/delivery.py)
   - get_signed_urls
 
 ## Installation
@@ -101,7 +114,7 @@ osdu = AwsOsduClient(data_partition,
     password=password)
 ```
 
-### Use the client
+### Using the client
 
 Below are just a few usage examples. See [integration tests](https://github.com/pariveda/osdupy/blob/master/tests/tests_integration.py) for more copmrehensive usage examples.
 
