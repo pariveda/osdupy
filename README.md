@@ -65,17 +65,17 @@ pip install osdupy
 If environment variable `OSDU_API_URL` is set, then it does not need to be passed as an argument. Otherwise it must be passed as  keyword argument.
 
 ```python
-from osdu.client import AwsOsduClient
+from osdu.client import SimpleOsduClient
 
 data_partition = 'opendes'
 token = 'token-received-from-front-end-app'
 
 # With env var `OSDU_API_URL` set in current environment.
-osdu = AwsOsduClient(data_partition, token)
+osdu = SimpleOsduClient(data_partition, token)
 
 # Without env var set.
 api_url = 'https://your.api.base_url.com'
-osdu = AwsOsduClient(data_partition, token, api_url=api_url)
+osdu = SimpleOsduClient(data_partition, token, api_url=api_url)
 
 ```
 
