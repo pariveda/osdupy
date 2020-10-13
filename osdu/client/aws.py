@@ -7,6 +7,8 @@ from .base import BaseOsduClient
 class AwsOsduClient(BaseOsduClient):
     """Good for batch tasks that don't have an interactive front-end. Token management is handled 
     with the boto3 library directly through the Cognito service. You have to supply additional arguments for this.
+
+    Requires: `boto3`
     """
 
     def __init__(self, data_partition_id, api_url:str=None, client_id:str=None, user:str=None, password:str=None) -> None:
