@@ -28,12 +28,14 @@ Choose the client that best meets your needs. The same methods are all supported
 BYOT: Bring your own token. Great for backend service or business logic that supplements a
 front-end application.
 
-*This client assumes you are obtaining a token yourself (e.g. via your application's
+This client assumes you are obtaining a token yourself (e.g. via your application's
 login form or otheer mechanism. With this SimpleOsduClient, you simply provide that token.
 With this simplicity, you are also then respnsible for reefreeshing the token as needed and
-re-instantiating the client with the new token.*
+re-instantiating the client with the new token.
 
 ### AwsOsduClient
+
+**Requires**: `boto3==1.15.*`
 
 Good for batch tasks that don't have an interactive front-end. Token management is handled
 with the boto3 library directly through the Cognito service. You have to supply additional arguments for this.

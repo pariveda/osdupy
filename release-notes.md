@@ -4,7 +4,7 @@
 
 **Release Date**: 2020.10.13
 
-Split the clients into separate modules to eliminate the boto3 dependency for those who don't need the AwsOsduClient
+Split the clients into separate modules to eliminate the boto3 dependency for those who don't need the `AwsOsduClient`
 
 The change is very minor, and the only impacts will be:
 
