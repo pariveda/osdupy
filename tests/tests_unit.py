@@ -1,7 +1,8 @@
 from typing import Pattern
 from unittest import TestCase, mock
 
-from osdu.client import AwsOsduClient, SimpleOsduClient
+from osdu.client.aws import AwsOsduClient
+from osdu.client.simple import SimpleOsduClient
 
 
 class TestAwsOsduClient(TestCase):
