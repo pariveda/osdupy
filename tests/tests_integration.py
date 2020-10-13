@@ -9,7 +9,8 @@ import os
 from unittest import TestCase
 
 import requests
-from osdu.client import AwsOsduClient, SimpleOsduClient
+from osdu.client.aws import AwsOsduClient
+from osdu.client.simple import SimpleOsduClient
 
 
 class TestSimpleOsduClient(TestCase):

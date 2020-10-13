@@ -17,6 +17,7 @@ A simple python client for the [OSDU](https://community.opengroup.org/osdu) data
     + [Search with paging](#search-with-paging)
     + [Get a record](#get-a-record)
     + [Upsert records](#upsert-records)
+- [Release Notes](release-notes.md)
 
 ## Clients
 
@@ -27,12 +28,14 @@ Choose the client that best meets your needs. The same methods are all supported
 BYOT: Bring your own token. Great for backend service or business logic that supplements a
 front-end application.
 
-*This client assumes you are obtaining a token yourself (e.g. via your application's
+This client assumes you are obtaining a token yourself (e.g. via your application's
 login form or otheer mechanism. With this SimpleOsduClient, you simply provide that token.
 With this simplicity, you are also then respnsible for reefreeshing the token as needed and
-re-instantiating the client with the new token.*
+re-instantiating the client with the new token.
 
 ### AwsOsduClient
+
+**Requires**: `boto3==1.15.*`
 
 Good for batch tasks that don't have an interactive front-end. Token management is handled
 with the boto3 library directly through the Cognito service. You have to supply additional arguments for this.
@@ -65,7 +68,7 @@ pip install osdupy
 If environment variable `OSDU_API_URL` is set, then it does not need to be passed as an argument. Otherwise it must be passed as  keyword argument.
 
 ```python
-from osdu.client import SimpleOsduClient
+from osdu.client.simple import SimpleOsduClient
 
 data_partition = 'opendes'
 token = 'token-received-from-front-end-app'
@@ -90,7 +93,7 @@ Environment variables:
 1. `OSDU_PASSWORD`
 
 ```python
-from osdu.client import AwsOsduClient
+from osdu.client.aws import AwsOsduClient
 
 data_partition = 'opendes'
 
@@ -101,7 +104,7 @@ If you have not set the above environment varialesâ€”or you have only set someâ€
 
 ```python
 from getpass import getpass
-from osdu.client import AwsOsduClient
+from osdu.client.aws import AwsOsduClient
 
 api_url = 'https://your.api.url.com'  # Must be base URL only
 client_id = 'YOURCLIENTID'
