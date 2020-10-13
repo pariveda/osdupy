@@ -17,6 +17,7 @@ A simple python client for the [OSDU](https://community.opengroup.org/osdu) data
     + [Search with paging](#search-with-paging)
     + [Get a record](#get-a-record)
     + [Upsert records](#upsert-records)
+- [Release Notes](release-notes.md)
 
 ## Clients
 
