@@ -91,6 +91,7 @@ Environment variables:
 1. `OSDU_CLIENT_ID`
 1. `OSDU_USER`
 1. `OSDU_PASSWORD`
+1. `AWS_PROFILE`
 
 ```python
 from osdu.client.aws import AwsOsduClient
@@ -111,12 +112,14 @@ client_id = 'YOURCLIENTID'
 user = 'username@testing.com'
 password = getpass()
 data_partition = 'yourpartition'
+profile = 'osdu-dev'
 
 osdu = AwsOsduClient(data_partition,  
     api_url=api_url,  
     client_id=client_id,  
     user=user,  
-    password=password)
+    password=password,
+    profile=profile)
 ```
 
 ### Using the client

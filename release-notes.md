@@ -24,3 +24,9 @@ from osdu.client import SimpleOsduClient
 from osdu.client.aws import AwsOsduClient
 from osdu.client.simple import SimpleOsduClient
 ```
+
+### `0.1.1`
+
+**Release Date**: 2020.10.19
+
+Added `profile` constructor arg and class property for AwsOsduClient to specify the AWS profile to be used when connecting to Cognito to obtain access token.
