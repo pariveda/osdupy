@@ -12,32 +12,48 @@ class AwsOsduClient(BaseOsduClient):
     Requires: `boto3`
     """
 
+    @property
+    def profile(self):
+        return self._profile
+
+    @profile.setter
+    def profile(self, val):
+        self._profile = val
+
+
     def __init__(self, data_partition_id, api_url:str=None, client_id:str=None, user:str=None, password:str=None, profile:str=None) -> None:
+        """Authenticate and instantiate a new AWS OSDU client. Uses Cognito directly to obtain an access token.
+        
+        :param data_partition_id:   [Required] OSDU data partition ID, e.g. 'opendes'
+        :param api_url:     Must be only the base URL, e.g. 'https://myapi.myregion.mydomain.com'
+                            If not provided as arg, client will attempt to load value from 
+                            environment variable: OSDU_API_URL.
+        :param client_id:   OSDU client ID. Must be a Cognito App Client with no client secret.
+        :param user:        OSDU username. If not provided as arg, client will attempt to load value from
+                            environment variable: OSDU_USER.
+        :param password:    OSDU password. If not provided as arg, client will attempt to load value from
+                            environment variable: OSDU_PASSWORD.
+        :param profile:     Name of AWS profile to use for AWS session to retrieve tokens form Cognito. 
+                            If not provided as arg, client will attempt to load value from 
+                            environment variable: AWS_PROFILE.
+        """
         super().__init__(data_partition_id, api_url)
 
         self._client_id = client_id or os.environ.get('OSDU_CLIENT_ID')
         self._user = user or os.environ.get('OSDU_USER')
+        self._profile = profile or os.environ.get('AWS_PROFILE')
         if password:
             self.get_tokens(password)
             password = None # Don't leave password lying around.
         else: 
             self.get_tokens(os.environ.get('OSDU_PASSWORD'))
-        if profile:
-            self._profile = profile
-        else if os.environ.get('OSDU_AWS_PROFILE'):
-            self._profile = os.environ.get('OSDU_AWS_PROFILE')
-        else:
-            self._profile = None
 
 
     def get_tokens(self, password) -> None:
-        if self._profile:
-            aws_session = boto3.session.Session(profile_name=self._profile)
-            client = my_session.client('cognito-idp')
-        else:
-            client = boto3.client('cognito-idp')
+        session = boto3.Session(profile_name=self._profile)
+        cognito = session.client('cognito-idp')
 
-        response = client.initiate_auth(
+        response = cognito.initiate_auth(
             AuthFlow='USER_PASSWORD_AUTH',
             ClientId=self._client_id,
             AuthParameters={ 'USERNAME': self._user, 'PASSWORD': password }
