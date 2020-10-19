@@ -50,8 +50,11 @@ class AwsOsduClient(BaseOsduClient):
 
 
     def get_tokens(self, password) -> None:
-        session = boto3.Session(profile_name=self._profile)
-        cognito = session.client('cognito-idp')
+        if self._profile:
+            session = boto3.Session(profile_name=self._profile)
+            cognito = session.client('cognito-idp')
+        else:
+            cognito = boto3.client('cognito-idp')
 
         response = cognito.initiate_auth(
             AuthFlow='USER_PASSWORD_AUTH',
