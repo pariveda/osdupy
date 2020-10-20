@@ -3,32 +3,45 @@ can be set locally by setting the environment variable OSDU_PASSWORD. If using
 VS Code, then you can set this in your local `.env` file in your workspace directory to easily
 switch between OSDU environments.
 """
-
-import unittest
 import json
 from functools import reduce
-import sys
-from osdu.client import AwsOsduClient
+import os
+from unittest import TestCase
+
+import requests
+from osdu.client.aws import AwsOsduClient
+from osdu.client.simple import SimpleOsduClient
 
 
-class TestOsduClient(unittest.TestCase):
+class TestSimpleOsduClient(TestCase):
+
+    def test_endpoint_access(self):
+        # token = os.environ.get('OSDU_ACCESS_TOKEN')
+        token = AwsOsduClient('opendes').access_token
+        query = {
+            "kind": f"opendes:osdu:*:*",
+            "limit": 1
+        }
+        client = SimpleOsduClient('opendes', token)
+
+        result = client.search.query(query)['results']
+
+        self.assertEqual(1, len(result))
+
+
+class TestAwsOsduClient(TestCase):
 
     def test_get_access_token(self):
-        osdu = AwsOsduClient('opendes')
-        token = osdu.token
-        self.assertIsNotNone(token)
+        client = AwsOsduClient('opendes')
+        self.assertIsNotNone(client.access_token)
 
 
-class TestOsduServiceBase(unittest.TestCase):
+class TestOsduServiceBase(TestCase):
 
     @classmethod
     def setUpClass(cls):
         # Authenticate once for the test fixture.
         cls.osdu = AwsOsduClient('opendes')
-
-    def setUp(self):
-        # Reuse the existing fixture-wide token for each test case.
-        self.osdu = type(self).osdu
     
 
 class TestSearchService_Query(TestOsduServiceBase):
@@ -58,7 +71,6 @@ class TestSearchService_Query(TestOsduServiceBase):
 
 
     def test_get_all_wellbores(self):
-        #Get Wellbores
         query = {
             "kind": "opendes:osdu:*:0.2.0",
             "query": "data.ResourceTypeID:\"srn:type:master-data/Wellbore:\""
@@ -157,7 +169,7 @@ class TestSearchService_Query(TestOsduServiceBase):
 
     def test_returned_fields(self):
         query = {
-            "kind": "opendes:osdu:*:0.2.1",
+            "kind": "opendes:osdu:*:0.2.0",
             "query": "data.ResourceTypeID:\"srn:type:master-data/Well:\"",
             "limit": 10,
             "returnedFields": ["data.Data.IndividualTypeProperties.CountryID"]
@@ -184,6 +196,15 @@ class TestSearchService_Query(TestOsduServiceBase):
         self.assertEqual(expected_count, count)
 
 
+    def test_malformed_query_raises_exception(self):
+        # Query with 3-part kind. Must be full 4-part kind.
+        query = {
+            "kind": "osdu:*:0.2.0"
+        }
+        with self.assertRaises(requests.HTTPError):
+            should_fail = self.osdu.search.query(query)
+
+
 class TestSearchService_QueryWithPaging(TestOsduServiceBase):
 
     def test_basic_paging(self):
@@ -197,13 +218,33 @@ class TestSearchService_QueryWithPaging(TestOsduServiceBase):
 
         # Iterate over first 'max_pages' pages and check that each page contains 'page_size' results.
         page_count = 1
-        for page in result:
-            self.assertEqual(page_size, len(page), f'Failed on page #{page_count}')
+        for page, total_count in result:
+            with (self.subTest(i=page_count)):
+                self.assertEqual(page_size, len(page), f'Failed on page #{page_count}')
             page_count += 1
             if page_count >= max_pages:
                 break
+        
+        self.assertGreater(page_count, 1)
 
 
+    def test_paging_gets_all_results(self):
+        page_size = 1000
+        query = {
+            'kind': 'opendes:osdu:well-master:*',
+            'limit': page_size
+        }
+        result = self.osdu.search.query_with_paging(query)
+
+        record_count = 0
+        total_count = 0
+        for page, total in result:
+            total_count = total
+            record_count += len(page)
+        
+        self.assertGreater(record_count, 0)
+        self.assertGreater(total_count, 0)
+        self.assertEqual(total_count, record_count)
 
 class TestStorageService(TestOsduServiceBase):
 
@@ -227,23 +268,60 @@ class TestStorageService(TestOsduServiceBase):
         self.assertEqual(record_id, result['id'])
 
 
-    def test_create_delete_single_record(self):
+    def test_get_nonexistant_record_raises_excpetion(self):
+        fake_record_id = 'opendes:doc:7be4fc7918e348c2bbc4d6f25b2ff334' #'ABC123'
+        with self.assertRaises(requests.HTTPError):
+            should_fail = self.osdu.storage.get_record(fake_record_id)
+
+
+    def test_get_all_record_versions(self):
+        record_id_query = {
+            "kind": "*:*:well-master:*",
+            "limit": 1,
+            "returnedFields": ["id"]
+        }
+        record_id = self.osdu.search.query(record_id_query)['results'][0]['id']
+
+        result = self.osdu.storage.get_all_record_versions(record_id)
+
+        self.assertEqual(record_id, result['recordId'])
+        self.assertGreaterEqual(len(result['versions']), 1)
+
+
+    def test_get_record_version(self):
+        record_id_query = {
+            "kind": "*:*:well-master:*",
+            "limit": 1
+        }
+        expected_record = self.osdu.search.query(record_id_query)['results'][0]
+
+        result = self.osdu.storage.get_record_version(expected_record['id'], expected_record['version'])
+
+        self.assertEqual(expected_record['id'], result['id'])
+        self.assertEqual(expected_record['version'], result['version'])
+
+
+
+class TestStorageService_WithSideEffects(TestOsduServiceBase):
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.test_records = []
+
+    def test_001_create_records(self):
         test_data_file = 'tests/test_data/test_create_single_record.json'
         with open(test_data_file, 'r') as _file:
             record = json.load(_file)
 
         result = self.osdu.storage.store_records([record])
-        record_ids = result['recordIds']
+        self.test_records = result['recordIds']
 
-        # Clean up.
-        del_results = []
-        for rec_id in record_ids:
-            isSuccess = self.osdu.storage.delete_record(rec_id)
-            del_results.append(isSuccess)
-
-        self.assertEqual(1, result['recordCount'])
-        # Assert that all deletes succeeded.
-        self.assertNotIn(False, del_results)
+    @classmethod
+    def tearDownClass(cls):
+        super().setUpClass()
+        for record_id in cls.test_records:
+            cls.osdu.storage.delete_record(record_id)
 
 
 
@@ -275,8 +353,3 @@ class TestDeliveryService(TestOsduServiceBase):
         # Assert
         self.assertEqual(expected_count['processed'], len(result['processed']))
         self.assertEqual(expected_count['unprocessed'], len(result['unprocessed']))
-
-
-
-if __name__ == '__main__':
-    unittest.main()

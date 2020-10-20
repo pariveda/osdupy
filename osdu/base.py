@@ -8,5 +8,5 @@ class BaseService():
         return {
             "Content-Type": "application/json",
             "data-partition-id": self._client._data_partition_id,
-            "Authorization": self._client.token
+            "Authorization": "Bearer " + self._client.access_token
         }
