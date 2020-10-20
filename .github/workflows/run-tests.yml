@@ -39,6 +39,8 @@ jobs:
         python -m unittest -v tests.tests_unit
     - name: Run integration tests
       env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.IAM_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.IAM_SECRET_ACCESS_KEY }}
         OSDU_API_URL: ${{ secrets.OSDU_API_URL }}
         OSDU_CLIENT_ID: ${{ secrets.OSDU_CLIENT_ID }}
         OSDU_USER: ${{ secrets.OSDU_USER }}
