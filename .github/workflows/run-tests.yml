@@ -37,12 +37,15 @@ jobs:
     - name: Run unit tests
       run: |
         python -m unittest -v tests.tests_unit
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.IAM_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.IAM_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
     - name: Run integration tests
       shell: bash
       env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.IAM_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.IAM_SECRET_ACCESS_KEY }}
-        AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
         OSDU_API_URL: ${{ secrets.OSDU_API_URL }}
         OSDU_CLIENT_ID: ${{ secrets.OSDU_CLIENT_ID }}
         OSDU_USER: ${{ secrets.OSDU_USER }}
