@@ -1,4 +1,4 @@
-from typing import Pattern
+import unittest
 from unittest import TestCase, mock
 
 from osdu.client.aws import AwsOsduClient
@@ -30,8 +30,13 @@ class TestSimpleOsduClient(TestCase):
     def test_initialize_simple_client_with_token(self):
         partition = 'opendes'
         token = 'mytoken'
+        api_url = 'https://your.api.url.com'
 
-        client = SimpleOsduClient(partition, token)
+        client = SimpleOsduClient(partition, token, api_url=api_url)
 
         self.assertEqual(partition, client.data_partition_id)
         self.assertEqual(token, client.access_token)
+
+
+if __name__ == '__main__':
+    unittest.main()
