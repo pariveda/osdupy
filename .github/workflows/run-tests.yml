@@ -47,4 +47,6 @@ jobs:
         OSDU_USER: ${{ secrets.OSDU_USER }}
         OSDU_PASSWORD: ${{ secrets.OSDU_PASSWORD }}
       run: |
+        echo "OSDU_USER: $OSDU_USER"
+        echo "AWS_DEFAULT_REGION: $AWS_DEFAULT_REGION"
         python -m unittest -v tests.tests_integration
