@@ -7,7 +7,9 @@ on:
 
 jobs:
   deploy:
+
     runs-on: ubuntu-latest
+
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python
@@ -23,6 +25,6 @@ jobs:
         TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
         TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
       run: |
-        echo "TWINE_USERNAME"
-        echo "python setup.py sdist bdist_wheel"
-        echo "twine upload dist/*"
+        echo "TWINE_USERNAME: $TWINE_USERNAME"
+        # python setup.py sdist bdist_wheel
+        # twine upload dist/*
