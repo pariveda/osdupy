@@ -43,14 +43,14 @@ jobs:
         aws-access-key-id: ${{ secrets.IAM_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.IAM_SECRET_ACCESS_KEY }}
         aws-region: ${{ secrets.AWS_REGION }}
-    - name: Run integration tests
-      shell: bash
-      env:
-        OSDU_API_URL: ${{ secrets.OSDU_API_URL }}
-        OSDU_CLIENT_ID: ${{ secrets.OSDU_CLIENT_ID }}
-        OSDU_USER: ${{ secrets.OSDU_USER }}
-        OSDU_PASSWORD: ${{ secrets.OSDU_PASSWORD }}
-      run: |
-        echo "OSDU_USER: $OSDU_USER"
-        echo "AWS_DEFAULT_REGION: $AWS_DEFAULT_REGION"
-        python -m unittest -v tests.tests_integration
+    # - name: Run integration tests
+    #   shell: bash
+    #   env:
+    #     OSDU_API_URL: ${{ secrets.OSDU_API_URL }}
+    #     OSDU_CLIENT_ID: ${{ secrets.OSDU_CLIENT_ID }}
+    #     OSDU_USER: ${{ secrets.OSDU_USER }}
+    #     OSDU_PASSWORD: ${{ secrets.OSDU_PASSWORD }}
+    #   run: |
+    #     echo "OSDU_USER: $OSDU_USER"
+    #     echo "AWS_DEFAULT_REGION: $AWS_DEFAULT_REGION"
+    #     python -m unittest -v tests.tests_integration
