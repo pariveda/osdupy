@@ -2,7 +2,7 @@ name: Build and publish pip package
 
 on:
   release:
-    types: [created]
+    types: [published]
   workflow_dispatch:
 
 jobs:
