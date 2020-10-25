@@ -3,9 +3,9 @@
 
 import os
 
-from osdu.delivery import DeliveryService
-from osdu.search import SearchService
-from osdu.storage import StorageService
+from osdu.services.delivery import DeliveryService
+from osdu.services.search import SearchService
+from osdu.services.storage import StorageService
 
 
 class BaseOsduClient:
