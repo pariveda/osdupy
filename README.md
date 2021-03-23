@@ -5,18 +5,19 @@ A simple python client for the [OSDU](https://community.opengroup.org/osdu) data
 ## Contents
 
 - [Clients](#clients)
-  * [SimpleOsduClient](#simpleosduclient)
-  * [AwsOsduClient](#awsosduclient)
+  - [SimpleOsduClient](#simpleosduclient)
+  - [AwsOsduClient](#awsosduclient)
 - [Currently supported methods](#currently-supported-methods)
 - [Installation](#installation)
+- [Tests](#tests)
 - [Usage](#usage)
-  * [Instantiating the SimpleOsduClient](#instantiating-the-simpleosduclient)
-  * [Instantiating the AwsOsduClient](#instantiating-the-awsosduclient)
-  * [Using the client](#using-the-client)
-    + [Search for records by query](#search-for-records-by-query)
-    + [Search with paging](#search-with-paging)
-    + [Get a record](#get-a-record)
-    + [Upsert records](#upsert-records)
+  - [Instantiating the SimpleOsduClient](#instantiating-the-simpleosduclient)
+  - [Instantiating the AwsOsduClient](#instantiating-the-awsosduclient)
+  - [Using the client](#using-the-client)
+    - [Search for records by query](#search-for-records-by-query)
+    - [Search with paging](#search-with-paging)
+    - [Get a record](#get-a-record)
+    - [Upsert records](#upsert-records)
 - [Release Notes](release-notes.md)
 
 ## Clients
@@ -61,11 +62,25 @@ with the boto3 library directly through the Cognito service. You have to supply 
 pip install osdupy
 ```
 
+## Tests
+
+Run unit tests
+
+```bash
+python -m unittest -v tests.unit
+```
+
+Run integration tests
+
+```bash
+python -m unittest -v tests.integration
+```
+
 ## Usage
 
 ### Instantiating the SimpleOsduClient
 
-If environment variable `OSDU_API_URL` is set, then it does not need to be passed as an argument. Otherwise it must be passed as  keyword argument.
+If environment variable `OSDU_API_URL` is set, then it does not need to be passed as an argument. Otherwise it must be passed as keyword argument.
 
 ```python
 from osdu.client.simple import SimpleOsduClient
@@ -114,10 +129,10 @@ password = getpass()
 data_partition = 'yourpartition'
 profile = 'osdu-dev'
 
-osdu = AwsOsduClient(data_partition,  
-    api_url=api_url,  
-    client_id=client_id,  
-    user=user,  
+osdu = AwsOsduClient(data_partition,
+    api_url=api_url,
+    client_id=client_id,
+    user=user,
     password=password,
     profile=profile)
 ```

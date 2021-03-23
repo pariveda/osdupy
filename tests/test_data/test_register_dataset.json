@@ -1,0 +1,36 @@
+{
+    "datasetRegistries": [
+        {
+            "kind": "opendes:wks:dataset--File.Generic:1.0.0",
+            "acl": {
+                "viewers": [
+                    "data.default.viewers@opendes.testing.com"
+                ],
+                "owners": [
+                    "data.default.owners@opendes.testing.com"
+                ]
+            },
+            "legal": {
+                "legaltags": [
+                    "opendes-public-usa-dataset-1"
+                ],
+                "otherRelevantDataCountries": [
+                    "US"
+                ],
+                "status": "compliant"
+            },
+            "data": {
+                "DatasetProperties": {
+                    "FileSourceInfo": {
+                        "FileSource": "",
+                        "PreLoadFilePath": "s3://osdur3m3-core-filedmsstack-15amo-s3databucketprod-xgo0ardyosps/opendes/6-zr9AeN2cIO2aA73dqTbuRQ4ZY/source.json"
+                    }
+                },
+                "ResourceSecurityClassification": "osdu:reference-data--ResourceSecurityClassification:RESTRICTED:",
+                "SchemaFormatTypeID": "osdu:reference-data--SchemaFormatType:TabSeparatedColumnarText:"
+            },
+            "meta": [],
+            "tags": {}
+        }
+    ]
+}
