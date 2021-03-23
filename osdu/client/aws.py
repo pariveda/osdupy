@@ -20,10 +20,9 @@ class AwsOsduClient(BaseOsduClient):
     def profile(self, val):
         self._profile = val
 
-
-    def __init__(self, data_partition_id, api_url:str=None, client_id:str=None, user:str=None, password:str=None, profile:str=None) -> None:
+    def __init__(self, data_partition_id, api_url: str = None, client_id: str = None, user: str = None, password: str = None, profile: str = None) -> None:
         """Authenticate and instantiate a new AWS OSDU client. Uses Cognito directly to obtain an access token.
-        
+
         :param data_partition_id:   [Required] OSDU data partition ID, e.g. 'opendes'
         :param api_url:     Must be only the base URL, e.g. 'https://myapi.myregion.mydomain.com'
                             If not provided as arg, client will attempt to load value from 
@@ -44,14 +43,14 @@ class AwsOsduClient(BaseOsduClient):
         self._profile = profile or os.environ.get('AWS_PROFILE')
         if password:
             self.get_tokens(password)
-            password = None # Don't leave password lying around.
-        else: 
+            password = None  # Don't leave password lying around.
+        else:
             self.get_tokens(os.environ.get('OSDU_PASSWORD'))
-
 
     def get_tokens(self, password) -> None:
         if self._profile:
             session = boto3.Session(profile_name=self._profile)
+            print('Created boto3 session with profile: ', self._profile)
             cognito = session.client('cognito-idp')
         else:
             cognito = boto3.client('cognito-idp')
@@ -59,7 +58,7 @@ class AwsOsduClient(BaseOsduClient):
         response = cognito.initiate_auth(
             AuthFlow='USER_PASSWORD_AUTH',
             ClientId=self._client_id,
-            AuthParameters={ 'USERNAME': self._user, 'PASSWORD': password }
+            AuthParameters={'USERNAME': self._user, 'PASSWORD': password}
         )
 
         self._access_token = response['AuthenticationResult']['AccessToken']

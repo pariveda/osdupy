@@ -7,8 +7,7 @@ from .base import BaseService
 class SearchService(BaseService):
 
     def __init__(self, client):
-        super().__init__(client, 'search')
-
+        super().__init__(client, 'search', service_version=2)
 
     def query(self, query: dict) -> dict:
         """Executes a query against the OSDU search service.
@@ -29,7 +28,6 @@ class SearchService(BaseService):
 
         return response.json()
 
-
     def query_with_paging(self, query: dict):
         """Executes a query with cursor against the OSDU search service. Returns a generator, which can than be
         iterated over to retrieve each page in the result set without having to deal with any cursor.
@@ -48,23 +46,23 @@ class SearchService(BaseService):
         url = f'{self._service_url}/query_with_cursor'
         # Initial cursor can be anything, but using a non-empty string value helps prevent accidents
         # in the case of sloppy/implicit boolean tests on the cursor value.
-        cursor='initial'
+        cursor = 'initial'
 
         # Note: This has to be a do-while (exit-controlled) loop, because the the API does not return
         # a null cursor until *after* we've consumed the last page. This results in always
         # returning an extra empty page at the end, which throws off the expected behavior of
         # the returned generator.
-        while True: # Effective do-while loop
+        while True:  # Effective do-while loop
             # Add cursor to request body for subsequent requests.
             if cursor != 'initial':
                 query['cursor'] = cursor
-            
-            response = requests.post(url=url, headers=self._headers(), json=query)
+
+            response = requests.post(
+                url=url, headers=self._headers(), json=query)
             response.raise_for_status()
 
-            cursor, results, total_count  = response.json().values()
+            cursor, results, total_count = response.json().values()
             if cursor is None:  # Effective do-while exit condition
                 break
             else:
                 yield results, total_count
-                
