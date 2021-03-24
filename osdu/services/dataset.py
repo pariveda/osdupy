@@ -25,7 +25,7 @@ class DatasetService(BaseService):
     def get_storage_instructions(self, kind_subtype: str):
         """ Get storage instructions for the given dataset type.
 
-        :param kind_subtype:    ...
+        :param kind_subtype:    Identifier for the dataset registry for which to retrieve source data
         :returns:               The API Response
         """
         url = f'{self._service_url}/getStorageInstructions?kindSubType={kind_subtype}'
@@ -35,6 +35,11 @@ class DatasetService(BaseService):
         return response.json()
 
     def register_dataset(self, datasetRegistries: List[dict]):
+        """ Get storage instructions for the given dataset type.
+
+        :param datasetRegistries:   List of dataset registry objects to register
+        :returns:                   The API Response
+        """
         url = f'{self._service_url}/registerDataset'
         response = requests.put(
             url, headers=self._headers(), json=datasetRegistries)
@@ -43,6 +48,11 @@ class DatasetService(BaseService):
         return response.json()
 
     def get_retrieval_instructions(self, dataset_registry_ids: List[dict]):
+        """ Get instructions on how to retrieve a given dataset registry
+
+        :param dataset_registry_ids:    Identifiers for the dataset registries for which to retrieve source data
+        :returns:                       The API Response
+        """
         url = f'{self._service_url}/getRetrievalInstructions'
         data = {'datasetRegistryIds': dataset_registry_ids}
         response = requests.post(
