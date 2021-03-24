@@ -4,6 +4,7 @@ VS Code, then you can set this in your local `.env` file in your workspace direc
 switch between OSDU environments.
 """
 import json
+import uuid
 from functools import reduce
 from unittest import TestCase
 from dotenv import load_dotenv
@@ -347,17 +348,28 @@ class TestDeliveryService(TestOsduServiceBase):
 
 class TestDatasetService(TestOsduServiceBase):
 
-    def test_get_storage_instructions(self):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.test_dataset_id = f'opendes:dataset--File.Generic:osdupy-{uuid.uuid4()}'
+
+    def test_000_get_storage_instructions(self):
         result = self.osdu.dataset.get_storage_instructions(
             'dataset--File.Generic')
 
         self.assertEqual('AWS_S3', result['providerKey'])
         self.assertIsNotNone(result['storageLocation'])
 
-    def test_register_dataset_file(self):
+    def test_001_register_dataset_file(self):
         datasetRegistry = json.load(
             open('tests/test_data/test_register_dataset.json'))
+        datasetRegistry['datasetRegistries'][0]['id'] = self.test_dataset_id
         result = self.osdu.dataset.register_dataset(datasetRegistry)
-        self.assertEqual(1, len(result['datasetRegistries']))
+        self.assertEqual(self.test_dataset_id,
+                         result['datasetRegistries'][0]['id'])
 
-    def test_get_retrieval_instructions(self):
+    def test_002_get_retrieval_instructions(self):
+        ids = [self.test_dataset_id]
+        result = self.osdu.dataset.get_retrieval_instructions(ids)
+        self.assertEqual(self.test_dataset_id,
+                         result['delivery'][0]['datasetRegistryId'])
