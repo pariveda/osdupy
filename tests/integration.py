@@ -213,7 +213,7 @@ class TestSearchService_QueryWithPaging(TestOsduServiceBase):
         # Iterate over first 'max_pages' pages and check that each page contains 'page_size' results.
         page_count = 1
         for page, total_count in result:
-            with (self.subTest(i=page_count)):
+            with self.subTest(i=page_count):
                 self.assertEqual(page_size, len(
                     page), f'Failed on page #{page_count}')
             page_count += 1
@@ -346,7 +346,7 @@ class TestDeliveryService(TestOsduServiceBase):
             expected_count['unprocessed'], len(result['unprocessed']))
 
 
-class TestDatasetService(TestOsduServiceBase):
+class TestDatasetService_WithSideEffects(TestOsduServiceBase):
 
     @classmethod
     def setUpClass(cls):
@@ -365,6 +365,19 @@ class TestDatasetService(TestOsduServiceBase):
             open('tests/test_data/test_register_dataset.json'))
         datasetRegistry['datasetRegistries'][0]['id'] = self.test_dataset_id
         result = self.osdu.dataset.register_dataset(datasetRegistry)
+        self.assertEqual(self.test_dataset_id,
+                         result['datasetRegistries'][0]['id'])
+
+    def test_002_get_dataset_registry(self):
+        result = self.osdu.dataset.get_dataset_registry(self.test_dataset_id)
+        self.assertEqual(1, len(result['datasetRegistries']))
+        self.assertEqual(self.test_dataset_id,
+                         result['datasetRegistries'][0]['id'])
+
+    def test_002_get_dataset_registries(self):
+        ids = [self.test_dataset_id]
+        result = self.osdu.dataset.get_dataset_registries(ids)
+        self.assertEqual(1, len(result['datasetRegistries']))
         self.assertEqual(self.test_dataset_id,
                          result['datasetRegistries'][0]['id'])
 
