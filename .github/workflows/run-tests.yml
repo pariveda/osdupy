@@ -37,7 +37,7 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Run unit tests
       run: |
-        python -m unittest -v tests.tests_unit
+        python -m unittest -v tests.unit
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
@@ -52,4 +52,4 @@ jobs:
         OSDU_USER: ${{ secrets.OSDU_USER }}
         OSDU_PASSWORD: ${{ secrets.OSDU_PASSWORD }}
       run: |
-        python -m unittest -v tests.tests_integration
+        python -m unittest -v tests.integration
