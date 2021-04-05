@@ -61,12 +61,13 @@ class SearchService(BaseService):
             response.raise_for_status()
 
             response_values  = response.json()
-            results = response_values['results']
-            total_count = response_values['total_count']
             if 'cursor' not in response_values:
                 cursor = 'none'
             else:
                 cursor = response_values['cursor']
-                
-            yield results, total_count
+            
+            if 'results' in response_values and 'totalCount' in response_values:
+                results = response_values['results']
+                total_count = response_values['totalCount']
+                yield results, total_count
                 
