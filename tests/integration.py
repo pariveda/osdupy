@@ -4,13 +4,17 @@ VS Code, then you can set this in your local `.env` file in your workspace direc
 switch between OSDU environments.
 """
 import json
+import uuid
 from functools import reduce
-import os
 from unittest import TestCase
+from dotenv import load_dotenv
 
 import requests
 from osdu.client.aws import AwsOsduClient
 from osdu.client.simple import SimpleOsduClient
+
+
+load_dotenv(verbose=True)
 
 
 class TestSimpleOsduClient(TestCase):
@@ -42,11 +46,11 @@ class TestOsduServiceBase(TestCase):
     def setUpClass(cls):
         # Authenticate once for the test fixture.
         cls.osdu = AwsOsduClient('opendes')
-    
+
 
 class TestSearchService_Query(TestOsduServiceBase):
 
-    def test_simple_search_for_10_items(self): 
+    def test_simple_search_for_10_items(self):
         query = {
             "kind": f"opendes:osdu:*:*",
             "limit": 10
@@ -54,7 +58,6 @@ class TestSearchService_Query(TestOsduServiceBase):
         result = self.osdu.search.query(query)['results']
 
         self.assertEqual(10, len(result))
-
 
     def test_get_all_wells(self):
         query_get_all_wells = {
@@ -65,10 +68,9 @@ class TestSearchService_Query(TestOsduServiceBase):
         result = self.osdu.search.query(query_get_all_wells)['results']
 
         # All results should be wells.
-        wells = filter(lambda x : x['type'] == 'well-master', result)
+        wells = filter(lambda x: x['type'] == 'well-master', result)
 
         self.assertCountEqual(wells, result)
-
 
     def test_get_all_wellbores(self):
         query = {
@@ -79,13 +81,12 @@ class TestSearchService_Query(TestOsduServiceBase):
         result = self.osdu.search.query(query)['results']
 
         # All results should be well bores.
-        wellbores = filter(lambda x : x['type'] == 'wellbore-master', result)
+        wellbores = filter(lambda x: x['type'] == 'wellbore-master', result)
 
         self.assertCountEqual(wellbores, result)
 
-
     def test_full_text_search(self):
-        #Wildcard (*) search
+        # Wildcard (*) search
         query = {
             "kind": "opendes:osdu:*:0.2.0",
             "query": "BIR*"
@@ -96,10 +97,9 @@ class TestSearchService_Query(TestOsduServiceBase):
 
         self.assertEqual(expected_count, result['totalCount'])
 
-
     def test_find_well_by_id(self):
-        #Search By WellID
-        query = {  
+        # Search By WellID
+        query = {
             "kind": "opendes:osdu:*:0.2.0",
             "query": "data.Data.IndividualTypeProperties.WellID:\"srn:master-data/Well:8690:\""
         }
@@ -109,10 +109,9 @@ class TestSearchService_Query(TestOsduServiceBase):
 
         self.assertEqual(expected_count, len(result))
 
-
     def test_query_find_matching_wells_by_id(self):
         # Boolean search with OR
-        well_ids = [ 'srn:master-data/Well:8690:', 'srn:master-data/Well:1000:' ]
+        well_ids = ['srn:master-data/Well:8690:', 'srn:master-data/Well:1000:']
         query = {
             "kind": "opendes:osdu:*:0.2.0",
             "query": f"data.ResourceID:(\"{well_ids[0]}\" OR \"{well_ids[1]}\")"
@@ -125,9 +124,8 @@ class TestSearchService_Query(TestOsduServiceBase):
         self.assertIn(result[0]['data']['ResourceID'], well_ids)
         self.assertIn(result[1]['data']['ResourceID'], well_ids)
 
-
     def test_find_well_in_country(self):
-        #More Boolean search
+        # More Boolean search
         query = {
             "kind": "opendes:osdu:*:0.2.0",
             "query": "(data.ResourceID:(\"srn:master-data/Well:8690:\" \
@@ -140,19 +138,17 @@ class TestSearchService_Query(TestOsduServiceBase):
 
         self.assertEqual(expected_count, len(result))
 
-
     def test_find_welllogs_with_gr_curve(self):
         # WellLog with GR curve
         query = {
             "kind": "opendes:osdu:*:0.2.0",
             "query": "(data.ResourceTypeID: \"srn:type:work-product-component/WellLog:\") AND (data.Data.IndividualTypeProperties.Curves.Mnemonic: GR)"
         }
-        expected_count = 928
+        expected_greater_than = 900
 
         result = self.osdu.search.query(query)
 
-        self.assertEqual(expected_count, result['totalCount'])
-
+        self.assertGreater(result['totalCount'], expected_greater_than)
 
     def test_find_markers_trajectories_for_wellbore(self):
         # Markers and Trajectories for a Wellbore
@@ -166,7 +162,6 @@ class TestSearchService_Query(TestOsduServiceBase):
 
         self.assertEqual(expected_count, len(result))
 
-
     def test_returned_fields(self):
         query = {
             "kind": "opendes:osdu:*:0.2.0",
@@ -176,14 +171,14 @@ class TestSearchService_Query(TestOsduServiceBase):
         }
 
         result = self.osdu.search.query(query)['results']
-        
-        returned_fields = lambda d : list(d.keys())
-        # self.assertListEqual(['data'], returned_fields(result[0]))
-        self.assertListEqual(['Data.IndividualTypeProperties.CountryID'], returned_fields(result[0]['data']))
 
+        def returned_fields(d): return list(d.keys())
+        # self.assertListEqual(['data'], returned_fields(result[0]))
+        self.assertListEqual(
+            ['Data.IndividualTypeProperties.CountryID'], returned_fields(result[0]['data']))
 
     def test_find_number_of_wellbores_for_a_well(self):
-        # Get the number of wellbores for a well 
+        # Get the number of wellbores for a well
         query = {
             "kind": "opendes:osdu:*:0.2.0",
             "query": "data.Data.IndividualTypeProperties.WellID:\"srn:master-data/Well:3687:\"",
@@ -194,7 +189,6 @@ class TestSearchService_Query(TestOsduServiceBase):
         count = self.osdu.search.query(query)['totalCount']
 
         self.assertEqual(expected_count, count)
-
 
     def test_malformed_query_raises_exception(self):
         # Query with 3-part kind. Must be full 4-part kind.
@@ -219,14 +213,14 @@ class TestSearchService_QueryWithPaging(TestOsduServiceBase):
         # Iterate over first 'max_pages' pages and check that each page contains 'page_size' results.
         page_count = 1
         for page, total_count in result:
-            with (self.subTest(i=page_count)):
-                self.assertEqual(page_size, len(page), f'Failed on page #{page_count}')
+            with self.subTest(i=page_count):
+                self.assertEqual(page_size, len(
+                    page), f'Failed on page #{page_count}')
             page_count += 1
             if page_count >= max_pages:
                 break
-        
-        self.assertGreater(page_count, 1)
 
+        self.assertGreater(page_count, 1)
 
     def test_paging_gets_all_results(self):
         page_size = 1000
@@ -241,10 +235,11 @@ class TestSearchService_QueryWithPaging(TestOsduServiceBase):
         for page, total in result:
             total_count = total
             record_count += len(page)
-        
+
         self.assertGreater(record_count, 0)
         self.assertGreater(total_count, 0)
         self.assertEqual(total_count, record_count)
+
 
 class TestStorageService(TestOsduServiceBase):
 
@@ -253,7 +248,6 @@ class TestStorageService(TestOsduServiceBase):
         result = self.osdu.storage.query_all_kinds()['results']
 
         self.assertGreater(len(result), expected_min)
-
 
     def test_get_record(self):
         record_id_query = {
@@ -267,12 +261,10 @@ class TestStorageService(TestOsduServiceBase):
 
         self.assertEqual(record_id, result['id'])
 
-
     def test_get_nonexistant_record_raises_excpetion(self):
-        fake_record_id = 'opendes:doc:7be4fc7918e348c2bbc4d6f25b2ff334' #'ABC123'
+        fake_record_id = 'opendes:doc:7be4fc7918e348c2bbc4d6f25b2ff334'  # 'ABC123'
         with self.assertRaises(requests.HTTPError):
             should_fail = self.osdu.storage.get_record(fake_record_id)
-
 
     def test_get_all_record_versions(self):
         record_id_query = {
@@ -287,7 +279,6 @@ class TestStorageService(TestOsduServiceBase):
         self.assertEqual(record_id, result['recordId'])
         self.assertGreaterEqual(len(result['versions']), 1)
 
-
     def test_get_record_version(self):
         record_id_query = {
             "kind": "*:*:well-master:*",
@@ -295,11 +286,11 @@ class TestStorageService(TestOsduServiceBase):
         }
         expected_record = self.osdu.search.query(record_id_query)['results'][0]
 
-        result = self.osdu.storage.get_record_version(expected_record['id'], expected_record['version'])
+        result = self.osdu.storage.get_record_version(
+            expected_record['id'], expected_record['version'])
 
         self.assertEqual(expected_record['id'], result['id'])
         self.assertEqual(expected_record['version'], result['version'])
-
 
 
 class TestStorageService_WithSideEffects(TestOsduServiceBase):
@@ -324,13 +315,12 @@ class TestStorageService_WithSideEffects(TestOsduServiceBase):
             cls.osdu.storage.delete_record(record_id)
 
 
-
 class TestDeliveryService(TestOsduServiceBase):
 
     def test_get_signed_urls_wells(self):
         # Arrange
         expected_count = {
-            'unprocessed': 0 
+            'unprocessed': 0
         }
         srns_query = {
             "kind": "opendes:osdu:*:0.2.0",
@@ -339,9 +329,9 @@ class TestDeliveryService(TestOsduServiceBase):
         }
         srns_results = self.osdu.search.query(srns_query)['results']
         srns = reduce(
-            (lambda a, b : a + b), 
+            (lambda a, b: a + b),
             map(
-                lambda result : result['data']['Data.GroupTypeProperties.Files'], 
+                lambda result: result['data']['Data.GroupTypeProperties.Files'],
                 srns_results
             )
         )
@@ -352,4 +342,47 @@ class TestDeliveryService(TestOsduServiceBase):
 
         # Assert
         self.assertEqual(expected_count['processed'], len(result['processed']))
-        self.assertEqual(expected_count['unprocessed'], len(result['unprocessed']))
+        self.assertEqual(
+            expected_count['unprocessed'], len(result['unprocessed']))
+
+
+class TestDatasetService_WithSideEffects(TestOsduServiceBase):
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.test_dataset_id = f'opendes:dataset--File.Generic:osdupy-{uuid.uuid4()}'
+
+    def test_000_get_storage_instructions(self):
+        result = self.osdu.dataset.get_storage_instructions(
+            'dataset--File.Generic')
+
+        self.assertEqual('AWS_S3', result['providerKey'])
+        self.assertIsNotNone(result['storageLocation'])
+
+    def test_001_register_dataset_file(self):
+        datasetRegistry = json.load(
+            open('tests/test_data/test_register_dataset.json'))
+        datasetRegistry['datasetRegistries'][0]['id'] = self.test_dataset_id
+        result = self.osdu.dataset.register_dataset(datasetRegistry)
+        self.assertEqual(self.test_dataset_id,
+                         result['datasetRegistries'][0]['id'])
+
+    def test_002_get_dataset_registry(self):
+        result = self.osdu.dataset.get_dataset_registry(self.test_dataset_id)
+        self.assertEqual(1, len(result['datasetRegistries']))
+        self.assertEqual(self.test_dataset_id,
+                         result['datasetRegistries'][0]['id'])
+
+    def test_002_get_dataset_registries(self):
+        ids = [self.test_dataset_id]
+        result = self.osdu.dataset.get_dataset_registries(ids)
+        self.assertEqual(1, len(result['datasetRegistries']))
+        self.assertEqual(self.test_dataset_id,
+                         result['datasetRegistries'][0]['id'])
+
+    def test_002_get_retrieval_instructions(self):
+        ids = [self.test_dataset_id]
+        result = self.osdu.dataset.get_retrieval_instructions(ids)
+        self.assertEqual(self.test_dataset_id,
+                         result['delivery'][0]['datasetRegistryId'])

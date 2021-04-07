@@ -7,8 +7,7 @@ from .base import BaseService
 class SearchService(BaseService):
 
     def __init__(self, client):
-        super().__init__(client, 'search')
-
+        super().__init__(client, 'search', service_version=2)
 
     def query(self, query: dict) -> dict:
         """Executes a query against the OSDU search service.
@@ -29,7 +28,6 @@ class SearchService(BaseService):
 
         return response.json()
 
-
     def query_with_paging(self, query: dict):
         """Executes a query with cursor against the OSDU search service. Returns a generator, which can than be
         iterated over to retrieve each page in the result set without having to deal with any cursor.
@@ -48,26 +46,26 @@ class SearchService(BaseService):
         url = f'{self._service_url}/query_with_cursor'
         # Initial cursor can be anything, but using a non-empty string value helps prevent accidents
         # in the case of sloppy/implicit boolean tests on the cursor value.
-        cursor='initial'
+        cursor = 'initial'
 
         # Note: The last page does not include a cursor in the response body, so we have to
         # unpack the values carefully and use a keyword to break our loop
-        while cursor != 'none': # Effective do-while loop
+        while cursor != 'none':  # Effective do-while loop
             # Add cursor to request body for subsequent requests.
             if cursor != 'initial':
                 query['cursor'] = cursor
-            
-            response = requests.post(url=url, headers=self._headers(), json=query)
+
+            response = requests.post(
+                url=url, headers=self._headers(), json=query)
             response.raise_for_status()
 
-            response_values  = response.json()
+            response_values = response.json()
             if 'cursor' not in response_values:
                 cursor = 'none'
             else:
                 cursor = response_values['cursor']
-            
+
             if 'results' in response_values and 'totalCount' in response_values:
                 results = response_values['results']
                 total_count = response_values['totalCount']
                 yield results, total_count
-                
