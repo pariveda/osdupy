@@ -48,11 +48,9 @@ class SearchService(BaseService):
         # in the case of sloppy/implicit boolean tests on the cursor value.
         cursor = 'initial'
 
-        # Note: This has to be a do-while (exit-controlled) loop, because the the API does not return
-        # a null cursor until *after* we've consumed the last page. This results in always
-        # returning an extra empty page at the end, which throws off the expected behavior of
-        # the returned generator.
-        while True:  # Effective do-while loop
+        # Note: The last page does not include a cursor in the response body, so we have to
+        # unpack the values carefully and use a keyword to break our loop
+        while cursor != 'none':  # Effective do-while loop
             # Add cursor to request body for subsequent requests.
             if cursor != 'initial':
                 query['cursor'] = cursor
@@ -61,8 +59,13 @@ class SearchService(BaseService):
                 url=url, headers=self._headers(), json=query)
             response.raise_for_status()
 
-            cursor, results, total_count = response.json().values()
-            if cursor is None:  # Effective do-while exit condition
-                break
+            response_values = response.json()
+            if 'cursor' not in response_values:
+                cursor = 'none'
             else:
+                cursor = response_values['cursor']
+
+            if 'results' in response_values and 'totalCount' in response_values:
+                results = response_values['results']
+                total_count = response_values['totalCount']
                 yield results, total_count
