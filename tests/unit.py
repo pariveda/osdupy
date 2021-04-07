@@ -1,4 +1,3 @@
-import unittest
 from unittest import TestCase, mock
 
 from osdu.client.aws import AwsOsduClient
@@ -17,11 +16,11 @@ class TestAwsOsduClient(TestCase):
         profile = 'osdu-dev'
 
         client = AwsOsduClient(partition,
-            api_url=api_url,  
-            client_id=client_id,  
-            user=user,  
-            password=password,
-            profile=profile)
+                               api_url=api_url,
+                               client_id=client_id,
+                               user=user,
+                               password=password,
+                               profile=profile)
 
         self.assertIsNotNone(client)
         self.assertEqual(partition, client.data_partition_id)
@@ -38,7 +37,3 @@ class TestSimpleOsduClient(TestCase):
 
         self.assertEqual(partition, client.data_partition_id)
         self.assertEqual(token, client.access_token)
-
-
-if __name__ == '__main__':
-    unittest.main()
