@@ -17,17 +17,18 @@ from osdu.client.simple import SimpleOsduClient
 
 load_dotenv(verbose=True)
 
+data_partition = 'osdu'
 
 class TestSimpleOsduClient(TestCase):
     
     def test_endpoint_access(self):
         # token = os.environ.get('OSDU_ACCESS_TOKEN')
-        token = AwsOsduClient('osdu').access_token
+        token = AwsOsduClient(data_partition).access_token
         query = {
             "kind": f"*:*:*:*",
             "limit": 1
         }
-        client = SimpleOsduClient('osdu', token)
+        client = SimpleOsduClient(data_partition, token)
 
         result = client.search.query(query)['results']
 
@@ -37,7 +38,7 @@ class TestSimpleOsduClient(TestCase):
 class TestAwsOsduClient(TestCase):
 
     def test_get_access_token(self):
-        client = AwsOsduClient('osdu')
+        client = AwsOsduClient(data_partition)
         self.assertIsNotNone(client.access_token)
 
 
@@ -46,7 +47,7 @@ class TestOsduServiceBase(TestCase):
     @classmethod
     def setUpClass(cls):
         # Authenticate once for the test fixture.
-        cls.osdu = AwsOsduClient('osdu')
+        cls.osdu = AwsOsduClient(data_partition)
     
 
 class TestSearchService_Query(TestOsduServiceBase):
