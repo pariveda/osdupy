@@ -1,35 +1,29 @@
 {
     "data": {
-        "ResourceTypeID": "srn:type:file/csv:",
-        "ResourceSecurityClassification": "srn:reference-data/ResourceSecurityClassification:RESTRICTED:",
-        "Data": {
-            "GroupTypeProperties": {
-                "FileSource": "",
-                "PreLoadFilePath": "s3://any_path/r1/data/provided/markers/137999999.csv"
-            },
-            "IndividualTypeProperties": {},
-            "ExtensionProperties": {}
-        },
-        "AssociativeID": "f-1",
-        "ResourceID": "srn:file/csv:806407212248301982083####:"
+        "DatasetProperties.FileSourceInfo.FileSource": "",
+        "ResourceSecurityClassification": "osdu:reference-data--ResourceSecurityClassification:RESTRICTED:",
+        "SchemaFormatTypeID": "osdu:reference-data--SchemaFormatType:TabSeparatedColumnarText:"
     },
-    "meta": [],
-    "kind": "opendes:osdu:file:0.2.1",
-    "acl": {
-        "viewers": [
-            "data.default.viewers@opendes.testing.com"
-        ],
-        "owners": [
-            "data.default.owners@opendes.testing.com"
-        ]
-    },
+    "kind": "osdu:wks:dataset--File.Generic:1.0.0",
+    "namespace": "osdu:wks",
     "legal": {
         "legaltags": [
-            "opendes-public-usa-dataset-1"
+            "osdu-public-usa-dataset-1"
         ],
         "otherRelevantDataCountries": [
             "US"
         ],
         "status": "compliant"
-    }
+    },
+    "id": "osdu:dataset--File.Generic:d180e2f8c63b041910c62d9defd5064639cb588d2a7ece7604dafa6a5ca9d",
+    "acl": {
+        "viewers": [
+            "data.default.viewers@osdu.testing.com"
+        ],
+        "owners": [
+            "data.default.owners@osdu.testing.com"
+        ]
+    },
+    "type": "dataset--File.Generic",
+    "version": 1617223984663669
 }
