@@ -7,6 +7,7 @@ from ..services.delivery import DeliveryService
 from ..services.search import SearchService
 from ..services.storage import StorageService
 from ..services.dataset import DatasetService
+from ..services.entitlements import EntitlementsService
 
 
 class BaseOsduClient:
@@ -26,6 +27,10 @@ class BaseOsduClient:
     @property
     def storage(self):
         return self._storage
+
+    @property
+    def entitlements(self):
+        return self._entitlements
 
     @property
     def delivery(self):
@@ -57,9 +62,9 @@ class BaseOsduClient:
         self._storage = StorageService(self)
         self._delivery = DeliveryService(self)
         self._dataset = DatasetService(self)
+        self._entitlements = EntitlementsService(self)
         # TODO: Implement these services.
         # self.__legal = LegaService(self)
-        # self.__entitlements = EntitlementsService(self)
 
     # Abstract Method
     def get_tokens(self, password):

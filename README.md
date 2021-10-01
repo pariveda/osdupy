@@ -18,6 +18,9 @@ A simple python client for the [OSDU](https://community.opengroup.org/osdu) data
     - [Search with paging](#search-with-paging)
     - [Get a record](#get-a-record)
     - [Upsert records](#upsert-records)
+    - [List groupmembership for the current user](#list-groups)
+    - [List membership of a particular group](#list-membership)
+    - [Add a user to a particular group](#add-group)
 - [Release Notes](release-notes.md)
 
 ## Clients
@@ -55,6 +58,12 @@ with the boto3 library directly through the Cognito service. You have to supply 
   - delete_record
 - [delivery](osdu/delivery.py)
   - get_signed_urls
+  [entitlement](osdu/entitlement.py)
+  - get_groups
+  - get_group_members
+  - add_group_member
+  - delete_group_member
+  - create_group
 
 ## Installation
 
@@ -195,4 +204,34 @@ with open(new_or_updated_record, 'r') as _file:
 
 result = osdu.storage.store_records([record])
 
+```
+
+#### List groupmembership for the current user
+
+```python
+result = osduClient.entitlements.getGroups()
+```
+
+### List membership of a particular group
+
+```python
+result = osduClient.entitlements.getGroupMembers('users@osdu.example.com')
+```
+
+### Add a user to a particular group
+Add a user (user@example.com) to groups to give entitlement to search for and retrieve data.
+
+```python
+query =  {
+     "email": "user@example.com",
+     #OWNER or MEMBER
+     "role": "MEMBER",
+ }
+result = osduClient.entitlements.addGroupMember('users.datalake.viewers@osdu.example.com',query)
+query =  {
+     "email": "user@example.com",
+     #OWNER or MEMBER
+     "role": "OWNER",
+ }
+result = osduClient.entitlements.addGroupMember('service.search.admin@osdu.example.com',query)
 ```
