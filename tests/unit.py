@@ -3,6 +3,10 @@ from unittest import TestCase, mock
 from osdu.client.aws import AwsOsduClient
 from osdu.client.simple import SimpleOsduClient
 
+import hmac
+import hashlib
+import base64
+
 
 class TestAwsOsduClient(TestCase):
 
@@ -11,9 +15,18 @@ class TestAwsOsduClient(TestCase):
         partition = 'opendes'
         api_url = 'https://your.api.url.com'
         client_id = 'YOURCLIENTID'
+        client_secret = 'YOURCLIENTSECRET'
         user = 'username@testing.com'
         password = 'p@ssw0rd'
         profile = 'osdu-dev'
+
+
+
+        message = user + client_id
+        dig = hmac.new(client_secret.encode('UTF-8'), msg=message.encode('UTF-8'),digestmod=hashlib.sha256).digest()
+        secretHash = base64.b64encode(dig).decode()
+
+
 
         client = AwsOsduClient(partition,
                                api_url=api_url,

@@ -107,6 +107,7 @@ Environment variables:
 1. `OSDU_USER`
 1. `OSDU_PASSWORD`
 1. `AWS_PROFILE`
+1. `AWS_SECRETHASH`
 
 ```python
 from osdu.client.aws import AwsOsduClient
@@ -126,14 +127,22 @@ api_url = 'https://your.api.url.com'  # Must be base URL only
 client_id = 'YOURCLIENTID'
 user = 'username@testing.com'
 password = getpass()
-data_partition = 'yourpartition'
+data_partition = 'osdu'
 profile = 'osdu-dev'
+
+message = user + client_id
+dig = hmac.new(client_secret.encode('UTF-8'), msg=message.encode('UTF-8'),
+               digestmod=hashlib.sha256).digest()
+secretHash = base64.b64encode(dig).decode()
+
+
 
 osdu = AwsOsduClient(data_partition,
     api_url=api_url,
     client_id=client_id,
     user=user,
     password=password,
+    secret_hash=secretHash,
     profile=profile)
 ```
 
