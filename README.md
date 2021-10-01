@@ -148,7 +148,7 @@ osdu = AwsOsduClient(data_partition,
 
 ### Using the client
 
-Below are just a few usage examples. See [integration tests](https://github.com/pariveda/osdupy/blob/master/tests/tests_integration.py) for more copmrehensive usage examples.
+Below are just a few usage examples. See [integration tests](https://github.com/pariveda/osdupy/blob/master/tests/tests_integration.py) for more comprehensive usage examples.
 
 #### Search for records by query
 
