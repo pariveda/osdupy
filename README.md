@@ -58,7 +58,7 @@ with the boto3 library directly through the Cognito service. You have to supply 
   - delete_record
 - [delivery](osdu/delivery.py)
   - get_signed_urls
-  [entitlement](osdu/entitlement.py)
+- [entitlement](osdu/entitlement.py)
   - get_groups
   - get_group_members
   - add_group_member
@@ -121,7 +121,7 @@ Environment variables:
 ```python
 from osdu.client.aws import AwsOsduClient
 
-data_partition = 'opendes'
+data_partition = 'osdu'
 
 osdu = AwsOsduClient(data_partition)
 ```
