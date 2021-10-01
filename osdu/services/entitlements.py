@@ -8,7 +8,7 @@ from .base import BaseService
 class EntitlementsService(BaseService):
 
     def __init__(self, client):
-        super().__init__(client, 'entitlements')
+        super().__init__(client, 'entitlements', service_version=2)
 
 
     def get_groups(self) -> dict:
