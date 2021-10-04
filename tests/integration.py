@@ -3,10 +3,6 @@ can be set locally by setting the environment variable OSDU_PASSWORD. If using
 VS Code, then you can set this in your local `.env` file in your workspace directory to easily
 switch between OSDU environments.
 """
-import json
-import uuid
-import unittest
-from functools import reduce
 from unittest import TestCase
 from dotenv import load_dotenv
 
@@ -86,102 +82,6 @@ class TestSearchService_Query(TestOsduServiceBase):
         wellbores = filter(lambda x : x['type'] == 'master-data--Wellbore', result)
 
         self.assertCountEqual(wellbores, result)
-
-
-    def test_full_text_search(self):
-        #Wildcard (*) search
-        query = {
-            "kind": "*:*:*:*",
-            "query": "BIR*"
-        }
-        expected_count = 20
-
-        result = self.osdu.search.query(query)
-
-        self.assertEqual(expected_count, result['totalCount'])
-
-
-    def test_find_well_by_id(self):
-        #Search By WellID
-        query = {  
-            "kind": "*:*:*:*",
-            "query": "data.WellID:\"osdu:master-data--Well:8690\""
-        }
-        expected_count = 2
-
-        result = self.osdu.search.query(query)['results']
-
-        self.assertEqual(expected_count, len(result))
-
-
-    def test_query_find_matching_wells_by_id(self):
-        # Boolean search with OR
-        well_ids = [ 'osdu:master-data--Well:8690', 'osdu:master-data--Well:1000' ]
-        query = {
-            "kind": "*:*:*:*",
-            "query": f"id:(\"{well_ids[0]}\" OR \"{well_ids[1]}\")"
-        }
-        expected_count = len(well_ids)
-
-        result = self.osdu.search.query(query)['results']
-
-        self.assertEqual(expected_count, len(result))
-        self.assertIn(result[0]['id'], well_ids)
-        self.assertIn(result[1]['id'], well_ids)
-
-    @unittest.skip("not currently indexed")
-    def test_find_welllogs_with_gr_curve(self):
-        # WellLog with GR curve
-        query = {
-            "kind": "*:*:*:*",
-            "query": "(type: \"work-product-component--WellLog\") AND (data.Curves.Mnemonic: GR)"
-        }
-        expected_count = 928
-
-        result = self.osdu.search.query(query)
-
-        self.assertEqual(expected_count, result['totalCount'])
-
-
-    def test_find_markers_trajectories_for_wellbore(self):
-        # Markers and Trajectories for a Wellbore
-        query = {
-            "kind": "*:*:*:*",
-            "query": "(data.WellboreID: \"osdu:master-data--Wellbore:3687:\") AND (type: (\"work-product-component--WellboreTrajectory\" OR \"work-product-component--WellboreMarkerSet\"))"
-        }
-        expected_count = 2
-
-        result = self.osdu.search.query(query)['results']
-
-        self.assertEqual(expected_count, len(result))
-
-
-    def test_returned_fields(self):
-        query = {
-            "kind": "*:*:*:*",
-            "query": "type:\"master-data--Well\"",
-            "limit": 10,
-            "returnedFields": ["data.FacilityID"]
-        }
-
-        result = self.osdu.search.query(query)['results']
-        
-        returned_fields = lambda d : list(d.keys())
-        self.assertListEqual(['FacilityID'], returned_fields(result[0]['data']))
-
-
-    def test_find_number_of_wellbores_for_a_well(self):
-        # Get the number of wellbores for a well 
-        query = {
-            "kind": "*:*:*:*",
-            "query": "data.WellID:\"osdu:master-data--Well:3687\"",
-            "returnedFields": [""]
-        }
-        expected_count = 3
-
-        count = self.osdu.search.query(query)['totalCount']
-
-        self.assertEqual(expected_count, count)
 
 
     def test_malformed_query_raises_exception(self):
@@ -281,23 +181,3 @@ class TestStorageService(TestOsduServiceBase):
         self.assertEqual(expected_record['id'], result['id'])
         self.assertEqual(expected_record['version'], result['version'])
 
-class TestStorageService_WithSideEffects(TestOsduServiceBase):
-
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.test_records = []
-
-    def test_001_create_records(self):
-        test_data_file = 'tests/test_data/test_create_single_record.json'
-        with open(test_data_file, 'r') as _file:
-            record = json.load(_file)
-
-        result = self.osdu.storage.store_records([record])
-        self.test_records = result['recordIds']
-
-    @classmethod
-    def tearDownClass(cls):
-        super().setUpClass()
-        for record_id in cls.test_records:
-            cls.osdu.storage.delete_record(record_id)
