@@ -69,10 +69,7 @@ class AwsOsduClient(BaseOsduClient):
             ClientId=self._client_id,
             AuthParameters=auth_params
         )
-            AuthFlow='USER_PASSWORD_AUTH',
-            ClientId=self._client_id,
-            AuthParameters={ 'USERNAME': self._user, 'PASSWORD': password, 'SECRET_HASH': secretHash }
-        )
+
 
         self._access_token = response['AuthenticationResult']['AccessToken']
         self._refresh_token = response['AuthenticationResult']['RefreshToken']
