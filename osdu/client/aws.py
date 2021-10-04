@@ -49,7 +49,7 @@ class AwsOsduClient(BaseOsduClient):
         else:
             self.get_tokens(os.environ.get('OSDU_PASSWORD'), secret_hash)
 
-    def get_tokens(self, password, secretHash) -> None:
+    def get_tokens(self, password, secret_hash) -> None:
         if self._profile:
             session = boto3.Session(profile_name=self._profile)
             print('Created boto3 session with profile: ', self._profile)
@@ -57,7 +57,18 @@ class AwsOsduClient(BaseOsduClient):
         else:
             cognito = boto3.client('cognito-idp')
 
+        auth_params = { 
+            'USERNAME': self._user, 
+            'PASSWORD': password
+        }
+        if secret_hash:
+            auth_params['SECRET_HASH'] = secret_hash
+        
         response = cognito.initiate_auth(
+            AuthFlow='USER_PASSWORD_AUTH',
+            ClientId=self._client_id,
+            AuthParameters=auth_params
+        )
             AuthFlow='USER_PASSWORD_AUTH',
             ClientId=self._client_id,
             AuthParameters={ 'USERNAME': self._user, 'PASSWORD': password, 'SECRET_HASH': secretHash }
