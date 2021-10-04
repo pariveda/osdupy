@@ -209,13 +209,51 @@ result = osdu.storage.store_records([record])
 #### List groupmembership for the current user
 
 ```python
-result = osduClient.entitlements.getGroups()
+result = osduClient.entitlements.get_groups()
+# {
+#  "desId": "user@example.org",
+#  "groups": [
+#    {
+#      "description": "Datalake Plugin-Manager users",
+#      "email": "service.plugin.user@osdu.example.com",
+#      "name": "service.plugin.user"
+#    },
+#    {
+#      "description": "Datalake csv-parser admins",
+#      "email": "service.csv-parser.admin@osdu.example.com",
+#      "name": "service.csv-parser.admin"
+#    },
+#    #...
+#       {
+#     "description": "The viewer of the datalake csv-parser service",
+#     "email": "service.csv-parser.viewer@osdu.example.com",
+#     "name": "service.csv-parser.viewer"
+#   }
+# ],
+# "memberEmail": "user@example.com"
+# }
 ```
 
 ### List membership of a particular group
 
 ```python
-result = osduClient.entitlements.getGroupMembers('users@osdu.example.com')
+result = osduClient.entitlements.get_group_members('users@osdu.example.com')
+#{
+#  "members": [
+#    {
+#      "email": "serviceprincipal@testing.com",
+#      "role": "OWNER"
+#    },
+#    {
+#      "email": "user@example.com",
+#      "role": "OWNER"
+#    },
+#    {
+#      "email": "noaccess@testing.com",
+#      "role": "OWNER"
+#    }
+#  ]
+#}
 ```
 
 ### Add a user to a particular group
@@ -227,11 +265,29 @@ query =  {
      #OWNER or MEMBER
      "role": "MEMBER",
  }
-result = osduClient.entitlements.addGroupMember('users.datalake.viewers@osdu.example.com',query)
+result = osduClient.entitlements.add_group_member('users.datalake.viewers@osdu.example.com',query)
 query =  {
      "email": "user@example.com",
      #OWNER or MEMBER
      "role": "OWNER",
  }
-result = osduClient.entitlements.addGroupMember('service.search.admin@osdu.example.com',query)
+result = osduClient.entitlements.add_group_member('service.search.admin@osdu.example.com',query)
+```
+
+### Delete user from a particular group
+Remove a user (user@example.com) from a group.
+
+```python
+query =  {
+     "email": "user@example.com",
+     #OWNER or MEMBER
+     "role": "MEMBER",
+ }
+result = osduClient.entitlements.delete_group_member('users.datalake.viewers@osdu.example.com',query)
+query =  {
+     "email": "user@example.com",
+     #OWNER or MEMBER
+     "role": "OWNER",
+ }
+result = osduClient.entitlements.delete_group_member('service.search.admin@osdu.example.com',query)
 ```
