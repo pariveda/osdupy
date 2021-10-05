@@ -1,5 +1,17 @@
 # Release Notes
 
+## `0.3.0`
+
+**Release Date**: 2021-10-01
+
+Changes by Chris Parsons from Petrosys to include Entitlements service.
+
+## `0.2.1`
+
+**Release Date**: 2021-10-01
+
+Changes by Chris Parsons from Petrosys to include secret hash for more security around Cognito Authorization.
+
 ## `0.1.0`
 
 **Release Date**: 2020.10.13
