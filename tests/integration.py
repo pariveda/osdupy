@@ -11,7 +11,7 @@ from osdu.client.aws import AwsOsduClient
 from osdu.client.simple import SimpleOsduClient
 
 
-load_dotenv(verbose=True)
+load_dotenv(verbose=True, override=True)
 
 data_partition = 'osdu'
 
