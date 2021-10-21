@@ -1,5 +1,6 @@
 """ Provides a simple Python interface to the OSDU Storage API.
 """
+from typing import List
 import requests
 from .base import BaseService
 
@@ -13,6 +14,20 @@ class StorageService(BaseService):
         """Returns the latest version of the given record."""
         url = f'{self._service_url}/records/{record_id}'
         response = self.__execute_request('get', url)
+
+        return response.json()
+
+    def get_records(self, record_ids: List[str], attributes: List[str] = []):
+        """Fetches multiple records at once.
+        
+        :record_ids:    List of record ids. Each record id must follow the naming convention {OSDU-Account-Id}:{dataset-name}:{record-type}:{version}.
+                        example: tenant1:well:123456789
+        :attributes:    Filter attributes to restrict the returned fields of the record. Usage: data.{record-data-field-name}.
+                        example: data.wellName
+        """
+        url = f'{self._service_url}/query/records'
+        payload = {'records': record_ids, 'attributes': attributes}
+        response = self.__execute_request('post', url, json=payload)
 
         return response.json()
 
