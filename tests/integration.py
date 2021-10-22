@@ -3,6 +3,7 @@ can be set locally by setting the environment variable OSDU_PASSWORD. If using
 VS Code, then you can set this in your local `.env` file in your workspace directory to easily
 switch between OSDU environments.
 """
+import json
 from unittest import TestCase
 from dotenv import load_dotenv
 
@@ -159,7 +160,7 @@ class TestStorageService(TestOsduServiceBase):
 
         response = self.osdu.storage.get_records(ids)
         actual_ids = list(map(lambda x: x['id'], response['records']))
-        
+
         self.assertEqual(set(actual_ids), set(ids))
 
     def test_get_nonexistant_record_raises_excpetion(self):
@@ -169,7 +170,7 @@ class TestStorageService(TestOsduServiceBase):
 
     def test_get_all_record_versions(self):
         record_id_query = {
-            "kind": "*:*:master-data--Well:*",
+            "kind": "*:*:*:*",
             "limit": 1,
             "returnedFields": ["id"]
         }
@@ -182,7 +183,7 @@ class TestStorageService(TestOsduServiceBase):
 
     def test_get_record_version(self):
         record_id_query = {
-            "kind": "*:*:master-data--Well:*",
+            "kind": "*:*:*:*",
             "limit": 1
         }
         expected_record = self.osdu.search.query(record_id_query)['results'][0]
@@ -192,3 +193,61 @@ class TestStorageService(TestOsduServiceBase):
 
         self.assertEqual(expected_record['id'], result['id'])
         self.assertEqual(expected_record['version'], result['version'])
+
+
+class TestStorageService_WithSideEffects(TestOsduServiceBase):
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.test_records = []
+
+    def test_001_create_records(self):
+        test_data_file = 'tests/test_data/test_create_single_record.json'
+        with open(test_data_file, 'r') as _file:
+            records_to_store = json.load(_file)
+
+        result = self.osdu.storage.store_records(records_to_store)
+        type(self).test_records = result['recordIds']
+
+        self.assertEqual(len(records_to_store), result['recordCount'])
+
+    def test_002_delete_record(self):
+        # Arrange
+        record_id = self.test_records[0]
+        record_was_deleted = False
+        record_still_exists = False
+
+        # Act
+        record_was_deleted = self.osdu.storage.delete_record(record_id)
+        record_still_exists = dict(self.osdu.storage.get_all_record_versions(
+            record_id)).get('recordId') == record_id
+
+        # Assert
+        self.assertTrue(record_was_deleted)
+        self.assertTrue(record_still_exists)
+
+        with self.assertRaises(requests.RequestException) as context:
+            self.osdu.storage.get_record(record_id) # Should throw exception
+        self.assertEqual(404, context.exception.response.status_code)
+
+    def test_003_purge_record(self):
+        # Arrange
+        record_id = self.test_records[0]
+        record_was_purged = False
+
+        # Act
+        record_was_purged = self.osdu.storage.purge_record(record_id)
+        if record_was_purged:
+            self.test_records.remove(record_id)
+
+        # Assert
+        self.assertTrue(record_was_purged)
+
+
+    @classmethod
+    def tearDownClass(cls):
+        for record_id in cls.test_records:
+            cls.osdu.storage.purge_record(record_id)
+        super().tearDownClass()
+

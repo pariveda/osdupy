@@ -19,11 +19,11 @@ class StorageService(BaseService):
 
     def get_records(self, record_ids: List[str], attributes: List[str] = []):
         """Fetches multiple records at once.
-        
-        :record_ids:    List of record ids. Each record id must follow the naming convention {OSDU-Account-Id}:{dataset-name}:{record-type}:{version}.
-                        example: tenant1:well:123456789
-        :attributes:    Filter attributes to restrict the returned fields of the record. Usage: data.{record-data-field-name}.
-                        example: data.wellName
+
+        :param record_ids:  List of record ids. Each record id must follow the naming convention {OSDU-Account-Id}:{dataset-name}:{record-type}:{version}.
+                            example: tenant1:well:123456789
+        :param attributes:  Filter attributes to restrict the returned fields of the record. Usage: data.{record-data-field-name}.
+                            example: data.wellName
         """
         url = f'{self._service_url}/query/records'
         payload = {'records': record_ids, 'attributes': attributes}
@@ -50,7 +50,20 @@ class StorageService(BaseService):
         return response.json()
 
     def delete_record(self, record_id: str) -> bool:
-        """Performs a logical deletion of the given record. This operation can be reverted later."""
+        """Performs a logical deletion of the given record. This operation can be reverted later.
+        
+        :returns:   True if record deleted successfully. Otherwise False.
+        """
+        url = f'{self._service_url}/records/{record_id}:delete'
+        response = self.__execute_request('post', url)
+
+        return response.status_code == 204
+
+    def purge_record(self, record_id: str) -> bool:
+        """performs the physical deletion of the given record and all of its versions. This operation cannot be undone.
+        
+        :returns:   True if record was purged successfully. Otherwise False.
+        """
         url = f'{self._service_url}/records/{record_id}'
         response = self.__execute_request('delete', url)
 

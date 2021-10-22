@@ -1,29 +1,19 @@
-{
-    "data": {
-        "DatasetProperties.FileSourceInfo.FileSource": "",
-        "ResourceSecurityClassification": "osdu:reference-data--ResourceSecurityClassification:RESTRICTED:",
-        "SchemaFormatTypeID": "osdu:reference-data--SchemaFormatType:TabSeparatedColumnarText:"
-    },
+[
+  {
     "kind": "osdu:wks:dataset--File.Generic:1.0.0",
     "namespace": "osdu:wks",
+    "data": {
+      "Name": "Test Record 1"
+    },
     "legal": {
-        "legaltags": [
-            "osdu-public-usa-dataset-1"
-        ],
-        "otherRelevantDataCountries": [
-            "US"
-        ],
-        "status": "compliant"
+      "legaltags": ["osdu-public-usa-dataset-1"],
+      "otherRelevantDataCountries": ["US"],
+      "status": "compliant"
     },
-    "id": "osdu:dataset--File.Generic:d180e2f8c63b041910c62d9defd5064639cb588d2a7ece7604dafa6a5ca9d",
     "acl": {
-        "viewers": [
-            "data.default.viewers@osdu.testing.com"
-        ],
-        "owners": [
-            "data.default.owners@osdu.testing.com"
-        ]
+      "viewers": ["data.default.viewers@osdu.example.com"],
+      "owners": ["data.default.owners@osdu.example.com"]
     },
-    "type": "dataset--File.Generic",
-    "version": 1617223984663669
-}
+    "type": "dataset--File.Generic"
+  }
+]
