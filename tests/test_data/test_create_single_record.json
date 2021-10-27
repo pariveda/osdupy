@@ -15,5 +15,39 @@
       "owners": ["data.default.owners@osdu.example.com"]
     },
     "type": "dataset--File.Generic"
+  },
+  {
+    "kind": "osdu:wks:dataset--File.Generic:1.0.0",
+    "namespace": "osdu:wks",
+    "data": {
+      "Name": "Test Record 2"
+    },
+    "legal": {
+      "legaltags": ["osdu-public-usa-dataset-1"],
+      "otherRelevantDataCountries": ["US"],
+      "status": "compliant"
+    },
+    "acl": {
+      "viewers": ["data.default.viewers@osdu.example.com"],
+      "owners": ["data.default.owners@osdu.example.com"]
+    },
+    "type": "dataset--File.Generic"
+  },
+  {
+    "kind": "osdu:wks:dataset--File.Generic:1.0.0",
+    "namespace": "osdu:wks",
+    "data": {
+      "Name": "Test Record 3"
+    },
+    "legal": {
+      "legaltags": ["osdu-public-usa-dataset-1"],
+      "otherRelevantDataCountries": ["US"],
+      "status": "compliant"
+    },
+    "acl": {
+      "viewers": ["data.default.viewers@osdu.example.com"],
+      "owners": ["data.default.owners@osdu.example.com"]
+    },
+    "type": "dataset--File.Generic"
   }
 ]

@@ -212,7 +212,8 @@ class TestStorageService_WithSideEffects(TestOsduServiceBase):
 
         self.assertEqual(len(records_to_store), result['recordCount'])
 
-    def test_002_delete_record(self):
+    def test_002_delete_record_only_soft_deletes(self):
+        """Verify record is only soft deleted."""
         # Arrange
         record_id = self.test_records[0]
         record_was_deleted = False
@@ -220,15 +221,14 @@ class TestStorageService_WithSideEffects(TestOsduServiceBase):
 
         # Act
         record_was_deleted = self.osdu.storage.delete_record(record_id)
-        record_still_exists = dict(self.osdu.storage.get_all_record_versions(
+        record_still_has_versions = dict(self.osdu.storage.get_all_record_versions(
             record_id)).get('recordId') == record_id
-
+        with self.assertRaises(requests.RequestException) as context:
+            self.osdu.storage.get_record(record_id)  # Should throw exception
+            
         # Assert
         self.assertTrue(record_was_deleted)
-        self.assertTrue(record_still_exists)
-
-        with self.assertRaises(requests.RequestException) as context:
-            self.osdu.storage.get_record(record_id) # Should throw exception
+        self.assertTrue(record_still_has_versions)
         self.assertEqual(404, context.exception.response.status_code)
 
     def test_003_purge_record(self):
@@ -240,14 +240,15 @@ class TestStorageService_WithSideEffects(TestOsduServiceBase):
         record_was_purged = self.osdu.storage.purge_record(record_id)
         if record_was_purged:
             self.test_records.remove(record_id)
+        with self.assertRaises(requests.RequestException) as context:
+            self.osdu.storage.get_all_record_versions(record_id)
 
         # Assert
         self.assertTrue(record_was_purged)
-
+        self.assertEqual(404, context.exception.response.status_code)
 
     @classmethod
     def tearDownClass(cls):
         for record_id in cls.test_records:
             cls.osdu.storage.purge_record(record_id)
         super().tearDownClass()
-
