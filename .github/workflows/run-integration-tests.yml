@@ -1,0 +1,42 @@
+# This workflow will install Python dependencies, run tests and lint with a variety of Python versions
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: Run integration tests
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.6, 3.7, 3.8]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install boto3==1.15.*
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.IAM_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.IAM_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+    - name: Run integration tests
+      shell: bash
+      env:
+        OSDU_API_URL: ${{ secrets.OSDU_API_URL }}
+        OSDU_CLIENT_ID: ${{ secrets.OSDU_CLIENT_ID }}
+        OSDU_USER: ${{ secrets.OSDU_USER }}
+        OSDU_PASSWORD: ${{ secrets.OSDU_PASSWORD }}
+      run: |
+        python -m unittest -v tests.integration

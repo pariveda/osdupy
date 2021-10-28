@@ -3,7 +3,6 @@
 
 import os
 
-from ..services.delivery import DeliveryService
 from ..services.search import SearchService
 from ..services.storage import StorageService
 from ..services.dataset import DatasetService
@@ -60,7 +59,6 @@ class BaseOsduClient:
         # Instantiate services.
         self._search = SearchService(self)
         self._storage = StorageService(self)
-        self._delivery = DeliveryService(self)
         self._dataset = DatasetService(self)
         self._entitlements = EntitlementsService(self)
         # TODO: Implement these services.

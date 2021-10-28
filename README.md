@@ -52,12 +52,18 @@ with the boto3 library directly through the Cognito service. You have to supply 
 - [storage](osdu/storage.py)
   - query_all_kinds
   - get_record
+  - get_records
   - get_all_record_versions
   - get_record_version
   - store_records
   - delete_record
-- [delivery](osdu/delivery.py)
-  - get_signed_urls
+  - purge_record
+- [dataset](osdu/dataset.py)
+  - get_dataset_registry
+  - get_dataset_registries
+  - get_storage_instructions
+  - register_dataset
+  - get_retrieval_instructions
 - [entitlement](osdu/entitlement.py)
   - get_groups
   - get_group_members
@@ -257,6 +263,7 @@ result = osduClient.entitlements.get_group_members('users@osdu.example.com')
 ```
 
 ### Add a user to a particular group
+
 Add a user (user@example.com) to groups to give entitlement to search for and retrieve data.
 
 ```python
@@ -275,6 +282,7 @@ result = osduClient.entitlements.add_group_member('service.search.admin@osdu.exa
 ```
 
 ### Delete user from a particular group
+
 Remove a user (user@example.com) from a group.
 
 ```python
