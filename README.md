@@ -263,6 +263,7 @@ result = osduClient.entitlements.get_group_members('users@osdu.example.com')
 ```
 
 ### Add a user to a particular group
+
 Add a user (user@example.com) to groups to give entitlement to search for and retrieve data.
 
 ```python
@@ -281,6 +282,7 @@ result = osduClient.entitlements.add_group_member('service.search.admin@osdu.exa
 ```
 
 ### Delete user from a particular group
+
 Remove a user (user@example.com) from a group.
 
 ```python
