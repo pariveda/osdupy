@@ -73,10 +73,8 @@ class ServicePrincipalUtil:
 
     def _get_secret(self, secret_name, secret_dict_key):
         client = self._session.client(service_name='secretsmanager')
-
         # In this sample we only handle the specific exceptions for the 'GetSecretValue' API.
         # See https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
-
         try:
             secret_response = client.get_secret_value(SecretId=secret_name)
             secret_val = None
