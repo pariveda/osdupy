@@ -1,4 +1,4 @@
-from .base import BaseOsduClient
+from ._base import BaseOsduClient
 
 
 class SimpleOsduClient(BaseOsduClient):

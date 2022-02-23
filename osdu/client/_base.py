@@ -54,7 +54,10 @@ class BaseOsduClient:
         """
         self._data_partition_id = data_partition_id
         # TODO: Validate api_url against URL regex pattern.
-        self._api_url = (api_url or os.environ.get('OSDU_API_URL')).rstrip('/')
+        api_url = api_url or os.environ.get('OSDU_API_URL')
+        if not api_url:
+            raise Exception('No API URL found.')
+        self._api_url = api_url.rstrip('/')
 
         # Instantiate services.
         self._search = SearchService(self)
@@ -64,7 +67,3 @@ class BaseOsduClient:
         # TODO: Implement these services.
         # self.__legal = LegaService(self)
 
-    # Abstract Method
-    def get_tokens(self, password):
-        raise NotImplementedError(
-            'This method must be implemented by a subclass')

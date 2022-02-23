@@ -1,8 +1,9 @@
 import os
 import boto3
 
-from .base import BaseOsduClient
+from ._base import BaseOsduClient
 import boto3.session
+
 
 
 class AwsOsduClient(BaseOsduClient):
