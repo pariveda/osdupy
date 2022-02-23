@@ -60,7 +60,8 @@ class SearchService(BaseService):
             response.raise_for_status()
 
             response_values = response.json()
-            if 'cursor' not in response_values:
+            # In older versions of OSDU, no cursor was returned on the last page. In newer versions, a null cursor is returned.
+            if 'cursor' not in response_values or response_values['cursor'] == None:
                 cursor = 'none'
             else:
                 cursor = response_values['cursor']
