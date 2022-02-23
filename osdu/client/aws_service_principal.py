@@ -4,7 +4,7 @@ from ._service_principal_util import ServicePrincipalUtil
 
 class AwsServicePrincipalOsduClient(BaseOsduClient):
 
-    def __init__(self, data_partition_id, resource_prefix, profile, region):
+    def __init__(self, data_partition_id: str, resource_prefix: str, profile: str = None, region: str = None):
         self._sp_util = ServicePrincipalUtil(
             resource_prefix, profile=profile, region=region)
         self._resource_prefix = resource_prefix

@@ -4,13 +4,16 @@ VS Code, then you can set this in your local `.env` file in your workspace direc
 switch between OSDU environments.
 """
 import json
+import os
 from unittest import TestCase
-from dotenv import load_dotenv
 
 import requests
-from osdu.client.aws import AwsOsduClient
-from osdu.client.simple import SimpleOsduClient
-
+from dotenv import load_dotenv
+from osdu.client import (
+    AwsOsduClient,
+    AwsServicePrincipalOsduClient,
+    SimpleOsduClient
+)
 
 load_dotenv(verbose=True, override=True)
 
@@ -38,6 +41,19 @@ class TestAwsOsduClient(TestCase):
     def test_get_access_token(self):
         client = AwsOsduClient(data_partition)
         self.assertIsNotNone(client.access_token)
+
+
+class TestAwsServicePrincipalOsduClient(TestCase):
+
+    def test_get_access_token(self):
+        client = AwsServicePrincipalOsduClient(
+            data_partition,
+            os.environ['OSDU_RESOURCE_PREFIX'],
+            profile=os.environ['AWS_PROFILE'],
+            region=os.environ['AWS_DEFAULT_REGION']
+        )
+        self.assertIsNotNone(client.access_token)
+        self.assertIsNotNone(client.api_url)
 
 
 class TestOsduServiceBase(TestCase):
@@ -225,7 +241,7 @@ class TestStorageService_WithSideEffects(TestOsduServiceBase):
             record_id)).get('recordId') == record_id
         with self.assertRaises(requests.RequestException) as context:
             self.osdu.storage.get_record(record_id)  # Should throw exception
-            
+
         # Assert
         self.assertTrue(record_was_deleted)
         self.assertTrue(record_still_has_versions)
