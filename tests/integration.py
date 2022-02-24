@@ -137,7 +137,7 @@ class TestSearchService_QueryWithPaging(TestOsduServiceBase):
 
         # Iterate over first 'max_pages' pages and check that each page contains 'page_size' results.
         page_count = 1
-        for page, total_count in result:
+        for page, _ in result:
             with (self.subTest(i=page_count)):
                 self.assertEqual(page_size, len(
                     page), f'Failed on page #{page_count}')
