@@ -158,8 +158,10 @@ class TestSearchService_QueryWithPaging(TestOsduServiceBase):
         record_count = 0
         total_count = 0
         for page, total in result:
-            total_count = total
+            total_count = total 
             record_count += len(page)
+            if record_count > total_count:
+                raise Exception("Paging to the end yields more records than total returned")
 
         self.assertGreater(record_count, 0)
         self.assertGreater(total_count, 0)
