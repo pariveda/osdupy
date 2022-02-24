@@ -23,7 +23,6 @@ data_partition = 'osdu'
 class TestSimpleOsduClient(TestCase):
 
     def test_endpoint_access(self):
-        # token = os.environ.get('OSDU_ACCESS_TOKEN')
         token = AwsOsduClient(data_partition).access_token
         query = {
             "kind": f"*:*:*:*",
@@ -54,6 +53,22 @@ class TestAwsServicePrincipalOsduClient(TestCase):
         )
         self.assertIsNotNone(client.access_token)
         self.assertIsNotNone(client.api_url)
+
+    def test_endpoint_access(self):
+        query = {
+            "kind": f"*:*:*:*",
+            "limit": 1
+        }
+        client = AwsServicePrincipalOsduClient(
+            data_partition,
+            os.environ['OSDU_RESOURCE_PREFIX'],
+            profile=os.environ['AWS_PROFILE'],
+            region=os.environ['AWS_DEFAULT_REGION']
+        )
+
+        result = client.search.query(query)['results']
+
+        self.assertEqual(1, len(result))
 
 
 class TestOsduServiceBase(TestCase):
