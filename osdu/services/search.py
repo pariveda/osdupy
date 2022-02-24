@@ -44,14 +44,12 @@ class SearchService(BaseService):
                                                 query or the 1,000 record limit of the API
         """
         url = f'{self._service_url}/query_with_cursor'
-        # Initial cursor can be anything, but using a non-empty string value helps prevent accidents
-        # in the case of sloppy/implicit boolean tests on the cursor value.
+        # Initial cursor can be anything, as it is only for the while-loop condition and does not get sent
+        # in the request. A non-empty string value helps prevent accidents like sloppy/implicit
+        # boolean tests on the cursor value.
         cursor = 'initial'
-
-        # Note: The last page does not include a cursor in the response body, so we have to
-        # unpack the values carefully and use a keyword to break our loop
-        while cursor != 'none':  # Effective do-while loop
-            # Add cursor to request body for subsequent requests.
+        while cursor is not None:
+            # Add cursor to request body for subsequent requests only.
             if cursor != 'initial':
                 query['cursor'] = cursor
 
@@ -59,12 +57,9 @@ class SearchService(BaseService):
                 url=url, headers=self._headers(), json=query)
             response.raise_for_status()
 
-            response_values = response.json()
+            response_values: dict = response.json()
             # In older versions of OSDU, no cursor was returned on the last page. In newer versions, a null cursor is returned.
-            if 'cursor' not in response_values or response_values['cursor'] == None:
-                cursor = 'none'
-            else:
-                cursor = response_values['cursor']
+            cursor = response_values.get('cursor')
 
             if 'results' in response_values and 'totalCount' in response_values:
                 results = response_values['results']
