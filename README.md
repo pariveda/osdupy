@@ -6,12 +6,14 @@ A simple python client for the [OSDU](https://community.opengroup.org/osdu) data
 
 - [Clients](#clients)
   - [SimpleOsduClient](#simpleosduclient)
+  - [AwsServicePrincipalOsduClient](#awsserviceprincipalosduclient)
   - [AwsOsduClient](#awsosduclient)
 - [Currently supported methods](#currently-supported-methods)
 - [Installation](#installation)
 - [Tests](#tests)
 - [Usage](#usage)
   - [Instantiating the SimpleOsduClient](#instantiating-the-simpleosduclient)
+  - [Instantiating the AwsServicePrincipalOsduClient](#instantiating-the-awsosduclient)
   - [Instantiating the AwsOsduClient](#instantiating-the-awsosduclient)
   - [Using the client](#using-the-client)
     - [Search for records by query](#search-for-records-by-query)
@@ -37,6 +39,15 @@ login form or otheer mechanism. With this SimpleOsduClient, you simply provide t
 With this simplicity, you are also then respnsible for reefreeshing the token as needed and
 re-instantiating the client with the new token.
 
+### AwsOsduServicePrincipalClient
+
+**Requires**: `boto3==1.15.*`
+
+Good for batch tasks that don't have an interactive front-end. Token management is handled
+with the boto3 library directly through the Cognito service. You have to supply additional arguments for this.
+
+For OSDU on AWS, this client is usually simpler than the AwsOsduClient as long as you have IAM credentials to access the necessary resources. You only need to provide the OSDU resource_prefix, region, and profile.
+
 ### AwsOsduClient
 
 **Requires**: `boto3==1.15.*`
@@ -44,12 +55,14 @@ re-instantiating the client with the new token.
 Good for batch tasks that don't have an interactive front-end. Token management is handled
 with the boto3 library directly through the Cognito service. You have to supply additional arguments for this.
 
+For OSDU on AWS, this client is useful in the case where you may want to perform actions as a specific OSDU user rather than as the ServicePrinicpal.
+
 ## Currently supported methods
 
-- [search](osdu/search.py)
+- [search](osdu/services/search.py)
   - query
   - query_with_paging
-- [storage](osdu/storage.py)
+- [storage](osdu/services/storage.py)
   - query_all_kinds
   - get_record
   - get_records
@@ -58,13 +71,13 @@ with the boto3 library directly through the Cognito service. You have to supply 
   - store_records
   - delete_record
   - purge_record
-- [dataset](osdu/dataset.py)
+- [dataset](osdu/services/dataset.py)
   - get_dataset_registry
   - get_dataset_registries
   - get_storage_instructions
   - register_dataset
   - get_retrieval_instructions
-- [entitlement](osdu/entitlement.py)
+- [entitlements](osdu/services/entitlements.py)
   - get_groups
   - get_group_members
   - add_group_member
@@ -98,18 +111,34 @@ python -m unittest -v tests.integration
 If environment variable `OSDU_API_URL` is set, then it does not need to be passed as an argument. Otherwise it must be passed as keyword argument.
 
 ```python
-from osdu.client.simple import SimpleOsduClient
+from osdu.client import SimpleOsduClient
 
-data_partition = 'opendes'
+data_partition = 'osdu'
 token = 'token-received-from-front-end-app'
 
 # With env var `OSDU_API_URL` set in current environment.
-osdu = SimpleOsduClient(data_partition, token)
+osdu_client = SimpleOsduClient(data_partition, token)
 
 # Without env var set.
 api_url = 'https://your.api.base_url.com'
-osdu = SimpleOsduClient(data_partition, token, api_url=api_url)
+osdu_client = SimpleOsduClient(data_partition, token, api_url=api_url)
 
+```
+
+### Instantiating the AwsServicePrincipalOsduClient
+
+```python
+from osdu.client import AwsOsduClient
+
+data_partition = 'osdu'
+resource_prefix = 'osdur3mX'
+
+osdu_client = AwsServicePrincipalOsduClient(
+    data_partition,
+    resource_prefix,
+    profile=os.environ['AWS_PROFILE'],
+    region=os.environ['AWS_DEFAULT_REGION']
+)
 ```
 
 ### Instantiating the AwsOsduClient
@@ -125,18 +154,18 @@ Environment variables:
 1. `AWS_SECRETHASH`
 
 ```python
-from osdu.client.aws import AwsOsduClient
+from osdu.client import AwsOsduClient
 
 data_partition = 'osdu'
 
-osdu = AwsOsduClient(data_partition)
+osdu_client = AwsOsduClient(data_partition)
 ```
 
 If you have not set the above environment variales—or you have only set some—then you will need to pass any undefined as args when instantiating the client.
 
 ```python
 from getpass import getpass
-from osdu.client.aws import AwsOsduClient
+from osdu.client import AwsOsduClient
 
 api_url = 'https://your.api.url.com'  # Must be base URL only
 client_id = 'YOURCLIENTID'
@@ -152,7 +181,7 @@ secretHash = base64.b64encode(dig).decode()
 
 
 
-osdu = AwsOsduClient(data_partition,
+osdu_client = AwsOsduClient(data_partition,
     api_url=api_url,
     client_id=client_id,
     user=user,
@@ -169,9 +198,9 @@ Below are just a few usage examples. See [integration tests](https://github.com/
 
 ```python
 query = {
-    "kind": f"opendes:osdu:*:*"
+    "kind": f"osdu:wks:*:*"
 }
-result = osdu.search.query(query)
+result = osdu_client.search.query(query)
 # { results: [ {...}, .... ], totalCount: ##### }
 ```
 
@@ -182,10 +211,10 @@ For result sets larger than 1,000 records, use the query with paging method.
 ```python
 page_size = 100 # Number of records per page (1-1000)
 query = {
-    "kind": f"opendes:osdu:*:*",
+    "kind": f"osdu:wks:*:*",
     "limit": page_size
 }
-result = osdu.search.query_with_paging(query)
+result = osdu_client.search.query_with_paging(query)
 
 # Iterate over the pages to do something with the results.
 for page, total_count in result:
@@ -197,7 +226,7 @@ for page, total_count in result:
 
 ```python
 record_id = 'opendes:doc:123456789'
-result = osdu.storage.get_record(record_id)
+result = osdu_client.storage.get_record(record_id)
 # { 'id': 'opendes:doc:123456789', 'kind': ..., 'data': {...}, 'acl': {...}, .... }
 ```
 
@@ -208,14 +237,14 @@ new_or_updated_record = './record-123.json'
 with open(new_or_updated_record, 'r') as _file:
     record = json.load(_file)
 
-result = osdu.storage.store_records([record])
+result = osdu_client.storage.store_records([record])
 
 ```
 
 #### List groupmembership for the current user
 
 ```python
-result = osduClient.entitlements.get_groups()
+result = osdu_client.entitlements.get_groups()
 # {
 #  "desId": "user@example.org",
 #  "groups": [
@@ -243,7 +272,7 @@ result = osduClient.entitlements.get_groups()
 ### List membership of a particular group
 
 ```python
-result = osduClient.entitlements.get_group_members('users@osdu.example.com')
+result = osdu_client.entitlements.get_group_members('users@osdu.example.com')
 #{
 #  "members": [
 #    {
@@ -272,13 +301,13 @@ query =  {
      #OWNER or MEMBER
      "role": "MEMBER",
  }
-result = osduClient.entitlements.add_group_member('users.datalake.viewers@osdu.example.com',query)
+result = osdu_client.entitlements.add_group_member('users.datalake.viewers@osdu.example.com',query)
 query =  {
      "email": "user@example.com",
      #OWNER or MEMBER
      "role": "OWNER",
  }
-result = osduClient.entitlements.add_group_member('service.search.admin@osdu.example.com',query)
+result = osdu_client.entitlements.add_group_member('service.search.admin@osdu.example.com',query)
 ```
 
 ### Delete user from a particular group
@@ -291,11 +320,11 @@ query =  {
      #OWNER or MEMBER
      "role": "MEMBER",
  }
-result = osduClient.entitlements.delete_group_member('users.datalake.viewers@osdu.example.com',query)
+result = osdu_client.entitlements.delete_group_member('users.datalake.viewers@osdu.example.com',query)
 query =  {
      "email": "user@example.com",
      #OWNER or MEMBER
      "role": "OWNER",
  }
-result = osduClient.entitlements.delete_group_member('service.search.admin@osdu.example.com',query)
+result = osdu_client.entitlements.delete_group_member('service.search.admin@osdu.example.com',query)
 ```

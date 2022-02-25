@@ -4,14 +4,16 @@ VS Code, then you can set this in your local `.env` file in your workspace direc
 switch between OSDU environments.
 """
 import json
-from logging import exception
+import os
 from unittest import TestCase
-from dotenv import load_dotenv
 
 import requests
-from osdu.client.aws import AwsOsduClient
-from osdu.client.simple import SimpleOsduClient
-
+from dotenv import load_dotenv
+from osdu.client import (
+    AwsOsduClient,
+    AwsServicePrincipalOsduClient,
+    SimpleOsduClient
+)
 
 load_dotenv(verbose=True, override=True)
 
@@ -21,7 +23,6 @@ data_partition = 'osdu'
 class TestSimpleOsduClient(TestCase):
 
     def test_endpoint_access(self):
-        # token = os.environ.get('OSDU_ACCESS_TOKEN')
         token = AwsOsduClient(data_partition).access_token
         query = {
             "kind": f"*:*:*:*",
@@ -39,6 +40,35 @@ class TestAwsOsduClient(TestCase):
     def test_get_access_token(self):
         client = AwsOsduClient(data_partition)
         self.assertIsNotNone(client.access_token)
+
+
+class TestAwsServicePrincipalOsduClient(TestCase):
+
+    def test_get_access_token(self):
+        client = AwsServicePrincipalOsduClient(
+            data_partition,
+            os.environ['OSDU_RESOURCE_PREFIX'],
+            profile=os.environ['AWS_PROFILE'],
+            region=os.environ['AWS_DEFAULT_REGION']
+        )
+        self.assertIsNotNone(client.access_token)
+        self.assertIsNotNone(client.api_url)
+
+    def test_endpoint_access(self):
+        query = {
+            "kind": f"*:*:*:*",
+            "limit": 1
+        }
+        client = AwsServicePrincipalOsduClient(
+            data_partition,
+            os.environ['OSDU_RESOURCE_PREFIX'],
+            profile=os.environ['AWS_PROFILE'],
+            region=os.environ['AWS_DEFAULT_REGION']
+        )
+
+        result = client.search.query(query)['results']
+
+        self.assertEqual(1, len(result))
 
 
 class TestOsduServiceBase(TestCase):
@@ -107,7 +137,7 @@ class TestSearchService_QueryWithPaging(TestOsduServiceBase):
 
         # Iterate over first 'max_pages' pages and check that each page contains 'page_size' results.
         page_count = 1
-        for page, total_count in result:
+        for page, _ in result:
             with (self.subTest(i=page_count)):
                 self.assertEqual(page_size, len(
                     page), f'Failed on page #{page_count}')
@@ -228,7 +258,7 @@ class TestStorageService_WithSideEffects(TestOsduServiceBase):
             record_id)).get('recordId') == record_id
         with self.assertRaises(requests.RequestException) as context:
             self.osdu.storage.get_record(record_id)  # Should throw exception
-            
+
         # Assert
         self.assertTrue(record_was_deleted)
         self.assertTrue(record_still_has_versions)
