@@ -6,7 +6,7 @@
       "Name": "Test Record 1"
     },
     "legal": {
-      "legaltags": ["osdu-public-usa-dataset-1"],
+      "legaltags": ["osdu-public-usa-dataset"],
       "otherRelevantDataCountries": ["US"],
       "status": "compliant"
     },
@@ -23,7 +23,7 @@
       "Name": "Test Record 2"
     },
     "legal": {
-      "legaltags": ["osdu-public-usa-dataset-1"],
+      "legaltags": ["osdu-public-usa-dataset"],
       "otherRelevantDataCountries": ["US"],
       "status": "compliant"
     },
@@ -40,7 +40,7 @@
       "Name": "Test Record 3"
     },
     "legal": {
-      "legaltags": ["osdu-public-usa-dataset-1"],
+      "legaltags": ["osdu-public-usa-dataset"],
       "otherRelevantDataCountries": ["US"],
       "status": "compliant"
     },
