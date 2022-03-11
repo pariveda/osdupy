@@ -1,7 +1,14 @@
-""" In order to run these tests, you must provide an appropriate `user` and `password`. The password
-can be set locally by setting the environment variable OSDU_PASSWORD. If using
+""" In order to run these tests, you must provide appropriate environment variables. If using
 VS Code, then you can set this in your local `.env` file in your workspace directory to easily
 switch between OSDU environments.
+Most Integration tests require:
+    OSDU_USER
+    AWS_PROFILE
+SimpleClient update_token integration test require:
+    OSDU_CLIENTWITHSECRET_ID
+    OSDU_CLIENTWITHSECRET_SECRET
+    OSDU_REFRESH_URL
+    OSDU_REFRESH_TOKEN
 """
 import json
 import os
@@ -14,6 +21,7 @@ from osdu.client import (
     AwsServicePrincipalOsduClient,
     SimpleOsduClient
 )
+from osdu.services.authentication import AuthenticationService
 
 load_dotenv(verbose=True, override=True)
 
@@ -32,6 +40,18 @@ class TestSimpleOsduClient(TestCase):
 
         result = client.search.query(query)['results']
 
+        self.assertEqual(1, len(result))
+    
+    def test_update_token(self):
+        query = {
+            "kind": f"*:*:*:*",
+            "limit": 1
+        }
+
+        client = SimpleOsduClient(data_partition)
+        update_token_response = AuthenticationService.update_token(client)
+        client.access_token = update_token_response['access_token']
+        result = client.search.query(query)['results']
         self.assertEqual(1, len(result))
 
 
