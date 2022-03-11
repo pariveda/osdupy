@@ -95,6 +95,16 @@ class TestAwsServicePrincipalOsduClient(TestCase):
 
         self.assertEqual(1, len(result))
 
+    def test_update_token(self):
+        client = AwsServicePrincipalOsduClient(data_partition,
+            os.environ['OSDU_RESOURCE_PREFIX'],
+            profile=os.environ['AWS_PROFILE'],
+            region=os.environ['AWS_DEFAULT_REGION']
+        )
+        client._token_expiration = 0 # change the token expiration so we force a refresh
+        updated_access_token = AuthenticationService.update_token(client)
+        self.assertIsNotNone(updated_access_token)
+
 
 class TestOsduServiceBase(TestCase):
 

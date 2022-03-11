@@ -9,13 +9,13 @@ class AuthenticationService(BaseService):
     def update_token(client):
         if(AuthenticationService._need_update_token(client)):
             if (hasattr(client, "resource_prefix") and client.resource_prefix is not None): #service principal client
-                token = AuthenticationService._update_token_simple(client)
+                token = AuthenticationService._update_token_service_principal(client)
             elif (hasattr(client, "profile") and client.profile is not None): #aws client
                 token = AuthenticationService._update_token_aws(client)
             else: #simple client
                 token = AuthenticationService._update_token_simple(client)
         else:
-            token = client.access_token
+            token = client.access_token, client._token_expiration
         return token
     
     def _need_update_token(client):
@@ -33,11 +33,9 @@ class AuthenticationService(BaseService):
                             refresh_url
                          all are set via optional parameters in the SimpleClient constructor or environment variables
 
-        :returns:       dict containing 3 items: aggregations, results, totalCount
-                        - id_token: not used
+        :returns:       tuple containing 2 items: the access_token and it's expiration_time
                         - access_token: used to access OSDU services
                         - expires_in:   expiration time for the token
-                        - token_type: not used (should be Bearer)
         """
         data = {'grant_type': 'refresh_token',
                 'client_id': client.client_id,
@@ -47,11 +45,11 @@ class AuthenticationService(BaseService):
         response = requests.post(url=client.refresh_url,headers=AuthenticationService._auth_headers(), data=data)
         response.raise_for_status()
 
-        return response.json()
+        return response.json()["access_token"],response.json()["expires_in"] + time()
     
     def _update_token_aws(client) -> dict:
         client.update_token()
-        return client._access_token
+        return client._access_token, client._token_expiration
     
     def _update_token_service_principal(client) -> dict:
         return client.update_token()

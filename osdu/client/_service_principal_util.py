@@ -28,6 +28,7 @@
 #               - Updated formatting to be PEP8-compliant.
 #
 import base64
+from time import time
 import boto3
 import requests
 import json
@@ -116,4 +117,4 @@ class ServicePrincipalUtil:
 
         response = requests.post(url=token_url, headers=headers)
 
-        return json.loads(response.content.decode())['access_token']
+        return json.loads(response.content.decode())['access_token'], json.loads(response.content.decode())['expires_in'] + time()

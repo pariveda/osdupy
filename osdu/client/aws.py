@@ -82,5 +82,6 @@ class AwsOsduClient(BaseOsduClient):
         if(password):
             self.get_tokens(password, self._secret_hash)
             password = None
+            return self.access_token, self._token_expiration
         return None # If we don't have a password, we can't refresh the token with the AWS client
 
