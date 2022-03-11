@@ -49,10 +49,9 @@ class TestSimpleOsduClient(TestCase):
         }
 
         client = SimpleOsduClient(data_partition)
-        update_token_response = AuthenticationService.update_token(client)
-        client.access_token = update_token_response['access_token']
-        result = client.search.query(query)['results']
-        self.assertEqual(1, len(result))
+        updated_access_token = AuthenticationService.update_token(client)
+        self.assertIsNotNone(updated_access_token)
+
 
 
 class TestAwsOsduClient(TestCase):
@@ -60,6 +59,12 @@ class TestAwsOsduClient(TestCase):
     def test_get_access_token(self):
         client = AwsOsduClient(data_partition)
         self.assertIsNotNone(client.access_token)
+
+    def test_update_token(self):
+        client = AwsOsduClient(data_partition)
+        client._token_expiration = 0 # change the token expiration so we force a refresh
+        updated_access_token = AuthenticationService.update_token(client)
+        self.assertIsNotNone(updated_access_token)
 
 
 class TestAwsServicePrincipalOsduClient(TestCase):
