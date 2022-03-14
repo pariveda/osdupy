@@ -3,6 +3,7 @@
 from typing import List
 import requests
 from .base import BaseService
+from .authentication import AuthenticationService
 
 
 class StorageService(BaseService):
@@ -84,7 +85,7 @@ class StorageService(BaseService):
         return response.json()
 
     def __execute_request(self, method: str, url: str, json=None):
-        headers = self._headers()
+        headers = AuthenticationService.get_headers(self._client)
         response = requests.request(method, url, headers=headers, json=json)
         response.raise_for_status()
 

@@ -7,6 +7,19 @@ from time import time
 class AuthenticationService(BaseService):
 
     def update_token(client):
+        """Determines if the current access token associated with the client has expired.
+        If the token is not expired, the current access_token will be returned, unchanged.
+        If the token has expired, this function will attempt to refresh it, update it on client, and return it.
+        For simple clients, refresh requires a OSDU_CLIENTWITHSECRET_ID, OSDU_CLIENTWITHSECRET_SECRET, REFRESH_TOKEN, and REFRESH_URL
+        For Service Principal clients, refresh requires a resource_prefix and AWS_PROFILE (same as initial auth)
+        For AWS clients, refresh requires OSDU_USER, OSDU_PASSWORD, AWS_PROFILE, and OSDU_CLIENT_ID
+        
+        :param client: client in use
+
+        :returns: tuple containing 2 items: the new access token and it's expiration time
+                        - access_token: used to access OSDU services
+                        - expires_in:   expiration time for the token
+        """
         if(AuthenticationService._need_update_token(client)):
             if (hasattr(client, "resource_prefix") and client.resource_prefix is not None): #service principal client
                 token = AuthenticationService._update_token_service_principal(client)
@@ -15,28 +28,14 @@ class AuthenticationService(BaseService):
             else: #simple client
                 token = AuthenticationService._update_token_simple(client)
         else:
-            token = client.access_token, client._token_expiration
+            token = client.access_token, client._token_expiration if hasattr(client, "_token_expiration") else None
         return token
     
     def _need_update_token(client):
         return hasattr(client, "_token_expiration") and client._token_expiration < time() or client.access_token is None
 
     
-    #TODO add expiration time to return
     def _update_token_simple(client) -> dict:
-        """Executes a query against the OSDU search service.
-
-        :param client:   the simple client being used. In order to refresh the token, the client must have:
-                            client_id: corresponding to the clientwithsecret
-                            client_secret: corresponding to the clientwithsecret
-                            refresh_token
-                            refresh_url
-                         all are set via optional parameters in the SimpleClient constructor or environment variables
-
-        :returns:       tuple containing 2 items: the access_token and it's expiration_time
-                        - access_token: used to access OSDU services
-                        - expires_in:   expiration time for the token
-        """
         data = {'grant_type': 'refresh_token',
                 'client_id': client.client_id,
                 'client_secret': client.client_secret,
@@ -52,10 +51,18 @@ class AuthenticationService(BaseService):
         return client._access_token, client._token_expiration
     
     def _update_token_service_principal(client) -> dict:
-        return client.update_token()
+        client.update_token()
+        return client._access_token, client._token_expiration
 
     def _auth_headers():
         return {
              "Content-Type": "application/x-www-form-urlencoded",
-             "Accept-Encoding": "gzip, deflate, br"
+        }
+
+    def get_headers(client):
+        AuthenticationService.update_token(client)
+        return {
+            "Content-Type": "application/json",
+            "data-partition-id": client._data_partition_id,
+            "Authorization": "Bearer " + client.access_token
         }
