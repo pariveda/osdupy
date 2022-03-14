@@ -192,16 +192,17 @@ osdu_client = AwsOsduClient(data_partition,
 
 ### Automatically re-authorizing the client
 Each client will automatically attempt to re-authorize when its access token expires. In order for this re-authorization to succeed, you will need to supply the client with additional parameters (either through environment variables or in their consructor):
-Simple Client:
+
+#### Simple Client:
 1. OSDU_CLIENTWITHSECRET_ID
 1. OSDU_CLIENTWITHSECRET_SECRET
 1. REFRESH_TOKEN
 1. REFRESH_URL
 
-AWS Client:
+#### AWS Client:
 1. OSDU_PASSWORD (in the environment variables, or somewhere else it can persist securely)
 
-Service Principal:
+#### Service Principal:
 N/A--this client can re-authorize with just the variables needed for it to instantiate
 
 ### Using the client
