@@ -197,8 +197,10 @@ Simple Client:
 1. OSDU_CLIENTWITHSECRET_SECRET
 1. REFRESH_TOKEN
 1. REFRESH_URL
+
 AWS Client:
 1. OSDU_PASSWORD (in the environment variables, or somewhere else it can persist securely)
+
 Service Principal:
 N/A--this client can re-authorize with just the variables needed for it to instantiate
 
