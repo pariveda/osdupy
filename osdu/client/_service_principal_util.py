@@ -114,7 +114,8 @@ class ServicePrincipalUtil:
 
         token_url = '{}?grant_type=client_credentials&client_id={}&scope={}'.format(
             token_url, client_id, aws_oauth_custom_scope)
-
+        
         response = requests.post(url=token_url, headers=headers)
+        response.raise_for_status()
         response_json = json.loads(response.content.decode())
         return response_json['access_token'], response_json['expires_in'] + time()
