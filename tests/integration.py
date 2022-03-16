@@ -48,7 +48,7 @@ class TestSimpleOsduClient(TestCase):
         }
         client = SimpleOsduClient(data_partition)
         old_access_token = client._access_token
-        client._token_expiration = 0
+        client._token_expiration = 0 #change token expiration so we force an update
         updated_access_token = client.access_token
         self.assertIsNotNone(updated_access_token)
         self.assertNotEqual(old_access_token,updated_access_token)

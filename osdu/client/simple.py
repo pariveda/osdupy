@@ -9,27 +9,10 @@ class SimpleOsduClient(BaseOsduClient):
     
     This client assumes you are obtaining a token yourself (e.g. via your application's
     login form or otheer mechanism. With this SimpleOsduClient, you simply provide that token.
-    With this simplicity, you are also then respnsible for reefreeshing the token as needed either by manually
-    re-instantiating the client with the new token or by providing the authentication client id, secret, refresh token, and refresh url. 
+    With this simplicity, you are also then respnsible for refreshing the token as needed either by manually
+    re-instantiating the client with the new token or by providing the authentication client id, secret, refresh token, and refresh url
+    and allowing the client to attempt the refresh automatically. 
     """
-
-    @property
-    def client_id(self):
-        return self._client_id
-
-    @property
-    def client_secret(self):
-        return self._client_secret
-    
-    @property
-    def refresh_url(self):
-        return self._refresh_url
-    
-    @property
-    def refresh_token(self):
-        return self._refresh_token
-
-
     
     def __init__(self, data_partition_id: str, access_token: str=None, api_url: str=None, refresh_token: str=None, refresh_url: str=None) -> None:
         """
