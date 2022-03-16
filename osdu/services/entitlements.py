@@ -22,7 +22,7 @@ class EntitlementsService(BaseService):
         
         url = f'{self._service_url}/groups'
         query = {}
-        response = requests.get(url=url, headers=self.get_headers(), json=query)
+        response = requests.get(url=url, headers=self._headers(), json=query)
         response.raise_for_status()
         return response.json()
 
@@ -38,7 +38,7 @@ class EntitlementsService(BaseService):
         
         url = f'{self._service_url}/groups/' + groupEmail + '/members'
         query = ''
-        response = requests.get(url=url, headers=self.get_headers(), json=query)
+        response = requests.get(url=url, headers=self._headers(), json=query)
         response.raise_for_status()
         return response.json()
 
@@ -53,7 +53,7 @@ class EntitlementsService(BaseService):
         """
         
         url = f'{self._service_url}/groups/' + groupEmail + '/members'
-        response = requests.post(url=url, headers=self.get_headers(), json=query)
+        response = requests.post(url=url, headers=self._headers(), json=query)
         response.raise_for_status()
         return response.json()
                 
@@ -68,7 +68,7 @@ class EntitlementsService(BaseService):
         """
         
         url = f'{self._service_url}/groups/' + groupEmail + '/members'
-        response = requests.delete(url=url, headers=self.get_headers(), json=query)
+        response = requests.delete(url=url, headers=self._headers(), json=query)
         response.raise_for_status()
         return response.json()
 
@@ -88,6 +88,6 @@ class EntitlementsService(BaseService):
         """
         
         url = f'{self._service_url}/groups/' + groupEmail + '/members'
-        response = requests.delete(url=url, headers=self.get_headers(), json=query)
+        response = requests.delete(url=url, headers=self._headers(), json=query)
         response.raise_for_status()
         return response.json()

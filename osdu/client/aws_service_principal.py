@@ -12,9 +12,7 @@ class AwsServicePrincipalOsduClient(BaseOsduClient):
         self._sp_util = ServicePrincipalUtil(
             resource_prefix, profile=profile, region=region)
         self._resource_prefix = resource_prefix
-        token_and_expiration = self._get_tokens()
-        self._access_token = token_and_expiration[0]
-        self._token_expiration = token_and_expiration[1]
+        self._access_token,self._token_expiration = self._get_tokens()
 
         super().__init__(data_partition_id, self._sp_util.api_url)
 

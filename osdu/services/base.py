@@ -5,7 +5,7 @@ class BaseService():
         self._service_url = f'{self._client.api_url}/api/{service_name}/v{service_version}'
 
     
-    def get_headers(self):
+    def _headers(self):
         return {
             "Content-Type": "application/json",
             "data-partition-id": self._client._data_partition_id,

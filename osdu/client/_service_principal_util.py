@@ -116,5 +116,5 @@ class ServicePrincipalUtil:
             token_url, client_id, aws_oauth_custom_scope)
 
         response = requests.post(url=token_url, headers=headers)
-
-        return json.loads(response.content.decode())['access_token'], json.loads(response.content.decode())['expires_in'] + time()
+        response_json = json.loads(response.content.decode())
+        return response_json['access_token'], response_json['expires_in'] + time()

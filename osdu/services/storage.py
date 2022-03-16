@@ -84,7 +84,7 @@ class StorageService(BaseService):
         return response.json()
 
     def __execute_request(self, method: str, url: str, json=None):
-        headers = self.get_headers()
+        headers = self._headers()
         response = requests.request(method, url, headers=headers, json=json)
         response.raise_for_status()
 

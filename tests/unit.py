@@ -2,6 +2,7 @@ import base64
 import hashlib
 import hmac
 from unittest import TestCase, mock
+from time import time
 
 from osdu.client import (
     AwsOsduClient,
@@ -12,7 +13,7 @@ from osdu.client import (
 
 class TestAwsServicePrincipalOsduClient(TestCase):
 
-    @mock.patch('osdu.client._service_principal_util.ServicePrincipalUtil.get_service_principal_token')
+    @mock.patch('osdu.client._service_principal_util.ServicePrincipalUtil.get_service_principal_token', return_value=["testtoken",time()+ 999])
     @mock.patch('boto3.Session')
     @mock.patch('base64.b64decode')
     def test_initialize_aws_client_with_args(self, mock_b64decode, mock_session, mock_sputil):
@@ -26,7 +27,7 @@ class TestAwsServicePrincipalOsduClient(TestCase):
 
         self.assertIsNotNone(client)
         self.assertEqual(partition, client.data_partition_id)
-        self.assertIsNotNone(client._access_token)
+        self.assertIsNotNone(client.access_token)
         self.assertIsNotNone(client.api_url)
 
 

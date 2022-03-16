@@ -30,6 +30,9 @@ class SimpleOsduClient(BaseOsduClient):
         self._client_secret = os.environ.get('OSDU_CLIENTWITHSECRET_SECRET')
 
     def _update_token(self) -> dict:
+        if not self._refresh_token or not self._refresh_url:
+            raise Exception('Expired or invalid access token. Both \'refresh_token\' and \'refresh_url\' must be set for token to be auto refreshed.')
+
         data = {'grant_type': 'refresh_token',
                 'client_id': self._client_id,
                 'client_secret': self._client_secret,

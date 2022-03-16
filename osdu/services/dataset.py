@@ -17,7 +17,7 @@ class DatasetService(BaseService):
         :returns:           The API Response
         """
         url = f'{self._service_url}/getDatasetRegistry?id={registry_id}'
-        response = requests.get(url=url, headers=self.get_headers())
+        response = requests.get(url=url, headers=self._headers())
         response.raise_for_status()
 
         return response.json()
@@ -30,7 +30,7 @@ class DatasetService(BaseService):
         """
         url = f'{self._service_url}/getDatasetRegistry?'
         data = {'datasetRegistryIds': registry_ids}
-        response = requests.post(url=url, headers=self.get_headers(), json=data)
+        response = requests.post(url=url, headers=self._headers(), json=data)
         response.raise_for_status()
 
         return response.json()
@@ -42,7 +42,7 @@ class DatasetService(BaseService):
         :returns:               The API Response
         """
         url = f'{self._service_url}/getStorageInstructions?kindSubType={kind_subtype}'
-        response = requests.get(url, headers=self.get_headers())
+        response = requests.get(url, headers=self._headers())
         response.raise_for_status()
 
         return response.json()
@@ -55,7 +55,7 @@ class DatasetService(BaseService):
         """
         url = f'{self._service_url}/registerDataset'
         response = requests.put(
-            url, headers=self.get_headers(), json=datasetRegistries)
+            url, headers=self._headers(), json=datasetRegistries)
         response.raise_for_status()
 
         return response.json()
@@ -69,7 +69,7 @@ class DatasetService(BaseService):
         url = f'{self._service_url}/getRetrievalInstructions'
         data = {'datasetRegistryIds': dataset_registry_ids}
         response = requests.post(
-            url, headers=self.get_headers(), json=data)
+            url, headers=self._headers(), json=data)
         response.raise_for_status()
 
         return response.json()

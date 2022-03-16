@@ -72,7 +72,7 @@ class AwsOsduClient(BaseOsduClient):
             AuthParameters=auth_params
         )
 
-        self._token_expiration = response['AuthenticationResult']["ExpiresIn"] + time()
+        self._token_expiration = response['AuthenticationResult']['ExpiresIn'] + time()
         self._access_token = response['AuthenticationResult']['AccessToken']
         self._refresh_token = response['AuthenticationResult']['RefreshToken']
     
