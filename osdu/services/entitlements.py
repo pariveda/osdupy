@@ -3,7 +3,6 @@
 import json
 import requests
 from .base import BaseService
-from .authentication import AuthenticationService
 
 
 class EntitlementsService(BaseService):
@@ -23,7 +22,7 @@ class EntitlementsService(BaseService):
         
         url = f'{self._service_url}/groups'
         query = {}
-        response = requests.get(url=url, headers=AuthenticationService.get_headers(self._client), json=query)
+        response = requests.get(url=url, headers=self.get_headers(), json=query)
         response.raise_for_status()
         return response.json()
 
@@ -39,7 +38,7 @@ class EntitlementsService(BaseService):
         
         url = f'{self._service_url}/groups/' + groupEmail + '/members'
         query = ''
-        response = requests.get(url=url, headers=AuthenticationService.get_headers(self._client), json=query)
+        response = requests.get(url=url, headers=self.get_headers(), json=query)
         response.raise_for_status()
         return response.json()
 
@@ -54,7 +53,7 @@ class EntitlementsService(BaseService):
         """
         
         url = f'{self._service_url}/groups/' + groupEmail + '/members'
-        response = requests.post(url=url, headers=AuthenticationService.get_headers(self._client), json=query)
+        response = requests.post(url=url, headers=self.get_headers(), json=query)
         response.raise_for_status()
         return response.json()
                 
@@ -69,7 +68,7 @@ class EntitlementsService(BaseService):
         """
         
         url = f'{self._service_url}/groups/' + groupEmail + '/members'
-        response = requests.delete(url=url, headers=AuthenticationService.get_headers(self._client), json=query)
+        response = requests.delete(url=url, headers=self.get_headers(), json=query)
         response.raise_for_status()
         return response.json()
 
@@ -89,6 +88,6 @@ class EntitlementsService(BaseService):
         """
         
         url = f'{self._service_url}/groups/' + groupEmail + '/members'
-        response = requests.delete(url=url, headers=AuthenticationService.get_headers(self._client), json=query)
+        response = requests.delete(url=url, headers=self.get_headers(), json=query)
         response.raise_for_status()
         return response.json()

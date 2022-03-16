@@ -21,7 +21,6 @@ from osdu.client import (
     AwsServicePrincipalOsduClient,
     SimpleOsduClient
 )
-from osdu.services.authentication import AuthenticationService
 
 load_dotenv(verbose=True, override=True)
 
@@ -47,11 +46,12 @@ class TestSimpleOsduClient(TestCase):
             "kind": f"*:*:*:*",
             "limit": 1
         }
-
         client = SimpleOsduClient(data_partition)
-        updated_access_token = AuthenticationService.update_token(client)
+        old_access_token = client._access_token
+        client._token_expiration = 0
+        updated_access_token = client.access_token
         self.assertIsNotNone(updated_access_token)
-
+        self.assertNotEqual(old_access_token,updated_access_token)
 
 
 class TestAwsOsduClient(TestCase):
@@ -62,9 +62,11 @@ class TestAwsOsduClient(TestCase):
 
     def test_update_token(self):
         client = AwsOsduClient(data_partition)
+        old_access_token = client.access_token
         client._token_expiration = 0 # change the token expiration so we force a refresh
-        updated_access_token = AuthenticationService.update_token(client)
+        updated_access_token = client.access_token
         self.assertIsNotNone(updated_access_token)
+        self.assertNotEqual(old_access_token,updated_access_token)
 
 
 class TestAwsServicePrincipalOsduClient(TestCase):
@@ -101,9 +103,11 @@ class TestAwsServicePrincipalOsduClient(TestCase):
             profile=os.environ['AWS_PROFILE'],
             region=os.environ['AWS_DEFAULT_REGION']
         )
+        old_access_token = client.access_token
         client._token_expiration = 0 # change the token expiration so we force a refresh
-        updated_access_token = AuthenticationService.update_token(client)
+        updated_access_token = client.access_token
         self.assertIsNotNone(updated_access_token)
+        self.assertNotEqual(old_access_token,updated_access_token)
 
 
 class TestOsduServiceBase(TestCase):

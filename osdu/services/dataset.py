@@ -3,7 +3,6 @@
 from typing import List
 import requests
 from .base import BaseService
-from .authentication import AuthenticationService
 
 
 class DatasetService(BaseService):
@@ -18,7 +17,7 @@ class DatasetService(BaseService):
         :returns:           The API Response
         """
         url = f'{self._service_url}/getDatasetRegistry?id={registry_id}'
-        response = requests.get(url=url, headers=AuthenticationService.get_headers(self._client))
+        response = requests.get(url=url, headers=self.get_headers())
         response.raise_for_status()
 
         return response.json()
@@ -31,7 +30,7 @@ class DatasetService(BaseService):
         """
         url = f'{self._service_url}/getDatasetRegistry?'
         data = {'datasetRegistryIds': registry_ids}
-        response = requests.post(url=url, headers=AuthenticationService.get_headers(self._client), json=data)
+        response = requests.post(url=url, headers=self.get_headers(), json=data)
         response.raise_for_status()
 
         return response.json()
@@ -43,7 +42,7 @@ class DatasetService(BaseService):
         :returns:               The API Response
         """
         url = f'{self._service_url}/getStorageInstructions?kindSubType={kind_subtype}'
-        response = requests.get(url, headers=AuthenticationService.get_headers(self._client))
+        response = requests.get(url, headers=self.get_headers())
         response.raise_for_status()
 
         return response.json()
@@ -56,7 +55,7 @@ class DatasetService(BaseService):
         """
         url = f'{self._service_url}/registerDataset'
         response = requests.put(
-            url, headers=AuthenticationService.get_headers(self._client), json=datasetRegistries)
+            url, headers=self.get_headers(), json=datasetRegistries)
         response.raise_for_status()
 
         return response.json()
@@ -70,7 +69,7 @@ class DatasetService(BaseService):
         url = f'{self._service_url}/getRetrievalInstructions'
         data = {'datasetRegistryIds': dataset_registry_ids}
         response = requests.post(
-            url, headers=AuthenticationService.get_headers(self._client), json=data)
+            url, headers=self.get_headers(), json=data)
         response.raise_for_status()
 
         return response.json()

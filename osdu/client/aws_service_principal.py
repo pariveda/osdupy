@@ -21,5 +21,6 @@ class AwsServicePrincipalOsduClient(BaseOsduClient):
     def _get_tokens(self):
         return self._sp_util.get_service_principal_token(self._resource_prefix)
    
-    def update_token(self):
-        return self._sp_util.get_service_principal_token(self._resource_prefix)
+    def _update_token(self):
+        self._access_token, self._token_expiration = self._sp_util.get_service_principal_token(self._resource_prefix)
+        return self._access_token, self._token_expiration

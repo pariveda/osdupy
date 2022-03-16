@@ -2,7 +2,7 @@
 """
 
 import os
-
+from time import time
 from ..services.search import SearchService
 from ..services.storage import StorageService
 from ..services.dataset import DatasetService
@@ -13,6 +13,7 @@ class BaseOsduClient:
 
     @property
     def access_token(self):
+        self._ensure_valid_token()
         return self._access_token
 
     @property
@@ -66,4 +67,30 @@ class BaseOsduClient:
         self._entitlements = EntitlementsService(self)
         # TODO: Implement these services.
         # self.__legal = LegaService(self)
+
+    def _need_update_token(self):
+        return hasattr(self, "_token_expiration") and self._token_expiration < time() or self._access_token is None
+
+    def _ensure_valid_token(self):
+        """Determines if the current access token associated with the client has expired.
+        If the token is not expired, the current access_token will be returned, unchanged.
+        If the token has expired, this function will attempt to refresh it, update it on client, and return it.
+        For simple clients, refresh requires a OSDU_CLIENTWITHSECRET_ID, OSDU_CLIENTWITHSECRET_SECRET, REFRESH_TOKEN, and REFRESH_URL
+        For Service Principal clients, refresh requires a resource_prefix and AWS_PROFILE (same as initial auth)
+        For AWS clients, refresh requires OSDU_USER, OSDU_PASSWORD, AWS_PROFILE, and OSDU_CLIENT_ID
+        
+        :param client: client in use
+
+        :returns: tuple containing 2 items: the new access token and it's expiration time
+                        - access_token: used to access OSDU services
+                        - expires_in:   expiration time for the token
+        """
+        if(self._need_update_token()):
+            token = self._update_token()
+        else:
+            token = self._access_token, self._token_expiration if hasattr(self, "_token_expiration") else None
+        return token
+
+    def _update_token(self):
+        pass #each client has their own update_token method
 

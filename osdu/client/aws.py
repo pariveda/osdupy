@@ -77,11 +77,11 @@ class AwsOsduClient(BaseOsduClient):
         self._refresh_token = response['AuthenticationResult']['RefreshToken']
     
     # TODO: refresh can only be used if password is in environment variables. Is there another way to store the password securely?
-    def update_token(self):
+    def _update_token(self):
         password = os.environ.get('OSDU_PASSWORD')
         if(password):
             self.get_tokens(password, self._secret_hash)
             password = None
-            return self.access_token, self._token_expiration
+            return self._access_token, self._token_expiration
         return None # If we don't have a password, we can't refresh the token with the AWS client
 

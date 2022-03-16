@@ -26,7 +26,7 @@ class TestAwsServicePrincipalOsduClient(TestCase):
 
         self.assertIsNotNone(client)
         self.assertEqual(partition, client.data_partition_id)
-        self.assertIsNotNone(client.access_token)
+        self.assertIsNotNone(client._access_token)
         self.assertIsNotNone(client.api_url)
 
 

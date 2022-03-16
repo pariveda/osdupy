@@ -2,7 +2,6 @@
 """
 import requests
 from .base import BaseService
-from .authentication import AuthenticationService
 
 
 class SearchService(BaseService):
@@ -24,7 +23,7 @@ class SearchService(BaseService):
                                                 query or the 1,000 record limit of the API
         """
         url = f'{self._service_url}/query'
-        response = requests.post(url=url, headers=AuthenticationService.get_headers(self._client), json=query)
+        response = requests.post(url=url, headers=self.get_headers(), json=query)
         response.raise_for_status()
 
         return response.json()
@@ -55,7 +54,7 @@ class SearchService(BaseService):
                 query['cursor'] = cursor
 
             response = requests.post(
-                url=url, headers=AuthenticationService.get_headers(self._client), json=query)
+                url=url, headers=self.get_headers(), json=query)
             response.raise_for_status()
 
             response_values: dict = response.json()
