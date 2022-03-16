@@ -26,7 +26,9 @@
 #               - Refactored _get_secret method to fix UnboundLocalError for local variable 'secret'.
 #               - Refactored _get_secret method to simplify try/except flow and to print secret_name on exception.
 #               - Updated formatting to be PEP8-compliant.
-#
+# 2022-03-16    johnny.reichman@parivedasolutions.com
+#               - Updated to return the token expiration in addition to the token
+#               - Added a more descriptive exception check after the POST request
 import base64
 from time import time
 import boto3
