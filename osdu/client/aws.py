@@ -79,7 +79,6 @@ class AwsOsduClient(BaseOsduClient):
     # TODO: refresh can only be used if password is in environment variables. Is there another way to store the password securely?
     def _update_token(self):
         password = os.environ.get('OSDU_PASSWORD')
-        password = None
         if(password):
             self.get_tokens(password, self._secret_hash)
             password = None
