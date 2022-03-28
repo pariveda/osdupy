@@ -7,6 +7,7 @@ from ..services.search import SearchService
 from ..services.storage import StorageService
 from ..services.dataset import DatasetService
 from ..services.entitlements import EntitlementsService
+from ..services.legal import LegalService
 
 
 class BaseOsduClient:
@@ -39,6 +40,10 @@ class BaseOsduClient:
     @property
     def dataset(self):
         return self._dataset
+    
+    @property
+    def legal(self):
+        return self.__legal
 
     @property
     def data_partition_id(self):
@@ -65,8 +70,7 @@ class BaseOsduClient:
         self._storage = StorageService(self)
         self._dataset = DatasetService(self)
         self._entitlements = EntitlementsService(self)
-        # TODO: Implement these services.
-        # self.__legal = LegaService(self)
+        self.__legal = LegalService(self)
 
     def _need_update_token(self):
         return hasattr(self, "_token_expiration") and self._token_expiration < time() or self._access_token is None

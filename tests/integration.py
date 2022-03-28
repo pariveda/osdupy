@@ -324,3 +324,59 @@ class TestStorageService_WithSideEffects(TestOsduServiceBase):
         for record_id in cls.test_records:
             cls.osdu.storage.purge_record(record_id)
         super().tearDownClass()
+
+class TestLegalService(TestOsduServiceBase):
+
+    def test_get_legaltags(self):
+        result = self.osdu.legal.get_legaltags()
+
+        self.assertTrue(len(result['legalTags']) > 0)
+
+    def test_validate_legaltags(self):
+        legaltag_names = ["osdu-public-usa-dataset", "osdu-testing-legal-tag-plz-delete"]
+        result = self.osdu.legal.validate_legaltags(legaltag_names)
+
+        self.assertIsNotNone(result['invalidLegalTags'])
+
+    def test_get_legaltag_properties(self):
+        result = self.osdu.legal.get_legaltag_properties()
+
+        self.assertIsNotNone(result['dataTypes'])
+    
+class TestLegalService_WithSideEffects(TestOsduServiceBase):
+
+    def test_001_create_legaltag(self):
+        test_data_file = 'tests/test_data/test_create_legaltag.json'
+        with open(test_data_file, 'r') as _file:
+            legaltag_to_store = json.load(_file)
+
+        result = self.osdu.legal.create_legaltag(legaltag_to_store)
+
+        self.assertIsNotNone(result["name"])
+
+    def test_002_get_legaltag(self):
+        legaltag = self.osdu.legal.get_legaltag("osdu-testing-legal-tag-plz-delete")
+
+        self.assertIsNotNone(legaltag["name"])
+    
+    def test_003_batch_retrieve_legaltag(self):
+        legaltag_names = ["osdu-public-usa-dataset", "osdu-testing-legal-tag-plz-delete"]
+        result = self.osdu.legal.batch_retrive_legaltags(legaltag_names)
+
+        self.assertTrue(len(result['legalTags']) > 0)
+
+    def test_004_update_legaltag(self):
+        test_data_file = 'tests/test_data/test_update_legaltag.json'
+        with open(test_data_file, 'r') as _file:
+            legaltag_to_store = json.load(_file)
+
+        result = self.osdu.legal.update_legaltag(legaltag_to_store)
+
+        self.assertEqual(result['description'], legaltag_to_store['description'])
+    
+    def test_005_delete_legaltag(self):
+        tag_was_deleted = self.osdu.legal.delete_legaltag("osdu-testing-legal-tag-plz-delete")
+
+        self.assertTrue(tag_was_deleted)
+    
+
