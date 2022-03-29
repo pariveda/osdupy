@@ -1,7 +1,14 @@
-""" In order to run these tests, you must provide an appropriate `user` and `password`. The password
-can be set locally by setting the environment variable OSDU_PASSWORD. If using
+""" In order to run these tests, you must provide appropriate environment variables. If using
 VS Code, then you can set this in your local `.env` file in your workspace directory to easily
 switch between OSDU environments.
+Most Integration tests require:
+    OSDU_USER
+    AWS_PROFILE
+SimpleClient update_token integration test require:
+    OSDU_CLIENTWITHSECRET_ID
+    OSDU_CLIENTWITHSECRET_SECRET
+    OSDU_REFRESH_URL
+    OSDU_REFRESH_TOKEN
 """
 import json
 import os
@@ -33,6 +40,18 @@ class TestSimpleOsduClient(TestCase):
         result = client.search.query(query)['results']
 
         self.assertEqual(1, len(result))
+    
+    def test_update_token(self):
+        query = {
+            "kind": f"*:*:*:*",
+            "limit": 1
+        }
+        client = SimpleOsduClient(data_partition)
+        old_access_token = client._access_token
+        client._token_expiration = 0 #change token expiration so we force an update
+        updated_access_token = client.access_token
+        self.assertIsNotNone(updated_access_token)
+        self.assertNotEqual(old_access_token,updated_access_token)
 
 
 class TestAwsOsduClient(TestCase):
@@ -40,6 +59,14 @@ class TestAwsOsduClient(TestCase):
     def test_get_access_token(self):
         client = AwsOsduClient(data_partition)
         self.assertIsNotNone(client.access_token)
+
+    def test_update_token(self):
+        client = AwsOsduClient(data_partition)
+        old_access_token = client.access_token
+        client._token_expiration = 0 # change the token expiration so we force a refresh
+        updated_access_token = client.access_token
+        self.assertIsNotNone(updated_access_token)
+        self.assertNotEqual(old_access_token,updated_access_token)
 
 
 class TestAwsServicePrincipalOsduClient(TestCase):
@@ -69,6 +96,18 @@ class TestAwsServicePrincipalOsduClient(TestCase):
         result = client.search.query(query)['results']
 
         self.assertEqual(1, len(result))
+
+    def test_update_token(self):
+        client = AwsServicePrincipalOsduClient(data_partition,
+            os.environ['OSDU_RESOURCE_PREFIX'],
+            profile=os.environ['AWS_PROFILE'],
+            region=os.environ['AWS_DEFAULT_REGION']
+        )
+        old_access_token = client.access_token
+        client._token_expiration = 0 # change the token expiration so we force a refresh
+        updated_access_token = client.access_token
+        self.assertIsNotNone(updated_access_token)
+        self.assertNotEqual(old_access_token,updated_access_token)
 
 
 class TestOsduServiceBase(TestCase):

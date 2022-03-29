@@ -26,8 +26,11 @@
 #               - Refactored _get_secret method to fix UnboundLocalError for local variable 'secret'.
 #               - Refactored _get_secret method to simplify try/except flow and to print secret_name on exception.
 #               - Updated formatting to be PEP8-compliant.
-#
+# 2022-03-16    johnny.reichman@parivedasolutions.com
+#               - Updated to return the token expiration in addition to the token
+#               - Added a more descriptive exception check after the POST request
 import base64
+from time import time
 import boto3
 import requests
 import json
@@ -113,7 +116,8 @@ class ServicePrincipalUtil:
 
         token_url = '{}?grant_type=client_credentials&client_id={}&scope={}'.format(
             token_url, client_id, aws_oauth_custom_scope)
-
+        
         response = requests.post(url=token_url, headers=headers)
-
-        return json.loads(response.content.decode())['access_token']
+        response.raise_for_status()
+        response_json = json.loads(response.content.decode())
+        return response_json['access_token'], response_json['expires_in'] + time()
