@@ -83,6 +83,15 @@ For OSDU on AWS, this client is useful in the case where you may want to perform
   - add_group_member
   - delete_group_member
   - create_group
+- [legal](osdu/services/legal.py)
+  - get_legaltag
+  - create_legaltag
+  - delete_legaltag
+  - get_legaltags
+  - update_legaltag
+  - batch_retrive_legaltags
+  - validate_legaltags
+  - get_legaltag_properties
 
 ## Installation
 
