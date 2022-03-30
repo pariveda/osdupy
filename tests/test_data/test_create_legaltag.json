@@ -1,0 +1,16 @@
+{
+    "name": "osdu-testing-legal-tag",
+    "description": "Another default legal tag",
+    "properties": {
+        "countryOfOrigin": [
+            "US"
+        ],
+        "contractId": "A1234",
+        "expirationDate": "2040-06-02",
+        "originator": "Default",
+        "dataType": "Public Domain Data",
+        "securityClassification": "Public",
+        "personalData": "No Personal Data",
+        "exportClassification": "EAR99"
+    }
+}
