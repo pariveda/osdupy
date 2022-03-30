@@ -333,7 +333,7 @@ class TestLegalService(TestOsduServiceBase):
         self.assertTrue(len(result['legalTags']) > 0)
 
     def test_validate_legaltags(self):
-        legaltag_names = ["osdu-public-usa-dataset", "osdu-testing-legal-tag-plz-delete"]
+        legaltag_names = ["osdu-public-usa-dataset", "osdu-testing-legal-tag"]
         result = self.osdu.legal.validate_legaltags(legaltag_names)
 
         self.assertIsNotNone(result['invalidLegalTags'])

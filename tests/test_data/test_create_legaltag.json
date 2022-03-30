@@ -1,5 +1,5 @@
 {
-    "name": "osdu-testing-legal-tag-plz-delete",
+    "name": "osdu-testing-legal-tag",
     "description": "Another default legal tag",
     "properties": {
         "countryOfOrigin": [
